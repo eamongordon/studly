@@ -9,6 +9,8 @@ export const lesson = pgTable("lessons", {
   source: text("source"),
 });
 
+export type Lesson = typeof lesson.$inferSelect;
+
 export const checkpoint = pgTable("checkpoints", {
   id: text("id")
     .primaryKey()
