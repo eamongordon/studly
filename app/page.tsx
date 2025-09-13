@@ -1,22 +1,51 @@
+
+'use client';
+import { useRef, useState, DragEvent } from 'react';
 import { Button } from '@/components/ui/button'
 import { Lightbulb } from 'lucide-react'
-export default function Home () {
+import FloatingIcons from "@/components/ui/floatingIcons";
+
+export default function Home() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFile(e.dataTransfer.files[0]);
+      e.dataTransfer.clearData();
+    }
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  }
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
   return (
     <div>
       <div className='min-h-screen bg-gray-50 relative overflow-hidden'>
         {/* Background lightbulb icons */}
-        <div className='absolute inset-0 pointer-events-none'>
-          <Lightbulb className='absolute top-20 left-16 w-6 h-6 text-gray-300 opacity-60' />
-          <Lightbulb className='absolute top-32 right-20 w-5 h-5 text-gray-300 opacity-40' />
-          <Lightbulb className='absolute top-40 left-1/3 w-4 h-4 text-gray-300 opacity-50' />
-          <Lightbulb className='absolute top-52 right-1/3 w-6 h-6 text-gray-300 opacity-30' />
-          <Lightbulb className='absolute top-64 left-1/4 w-5 h-5 text-gray-300 opacity-45' />
-          <Lightbulb className='absolute bottom-40 left-12 w-4 h-4 text-gray-300 opacity-35' />
-          <Lightbulb className='absolute bottom-52 right-16 w-6 h-6 text-gray-300 opacity-50' />
-          <Lightbulb className='absolute bottom-64 left-1/2 w-5 h-5 text-gray-300 opacity-40' />
-          <Lightbulb className='absolute bottom-32 right-1/4 w-4 h-4 text-gray-300 opacity-60' />
-          <Lightbulb className='absolute bottom-20 left-1/3 w-6 h-6 text-gray-300 opacity-30' />
-        </div>
+        <FloatingIcons />
 
         {/* Header */}
         <header className='relative z-10 flex items-center justify-between p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
@@ -50,16 +79,35 @@ export default function Home () {
               </div>
             </div>
 
-            {/* Right side - File upload area */}
-            <div className='rounded-xl bg-rose-200/70 border border-rose-300 p-5'>
-              <div className='rounded-2xl border-2 border-dashed border-rose-300 bg-rose-100/30 p-10 flex flex-col items-center justify-center text-center'>
-                <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4' />
+            {/* Right side - File upload area (Dropzone) */}
+            <div
+              className={`rounded-xl bg-rose-200/70 border border-rose-300 p-5 transition-shadow ${isDragActive ? 'ring-2 ring-rose-400 shadow-lg' : ''}`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={handleClick}
+              style={{ cursor: 'pointer' }}
+            >
+              <input
+                type="file"
+                accept=".pdf,.png,.jpeg,.jpg"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+              />
+              <div className={`rounded-2xl border-2 border-dashed border-rose-300 bg-rose-100/30 p-10 flex flex-col items-center justify-center text-center transition-colors ${isDragActive ? 'bg-rose-100/60 border-rose-400' : ''}`}>
+                <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'>
+
+                  {selectedFile ? (
+                    <span className='text-xs text-gray-500'>{selectedFile.name}</span>
+                  ) : null}
+                </div>
                 <p className='text-xs text-gray-700'>
                   Accepted file types: pdf, png, jpeg
                 </p>
               </div>
               <div className='mt-4 text-sm text-gray-800'>
-                Drop your notes here
+                {selectedFile ? 'File ready to upload!' : 'Drop your notes here'}
               </div>
             </div>
           </div>
@@ -95,5 +143,5 @@ export default function Home () {
         </main>
       </div>
     </div>
-  )
+  );
 }

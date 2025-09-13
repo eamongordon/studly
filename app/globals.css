@@ -120,3 +120,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+:root {
+  --drift-duration: 12s;
+}
+
+@keyframes float-sync {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+.float-sync {
+  animation: float-sync var(--drift-duration) ease-in-out infinite;
+}
+
+@keyframes spin-sync {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spin-sync {
+  animation: spin-sync calc(var(--drift-duration) * 5) linear infinite; /* super slow */
+  transform-origin: center;
+}
+
+@keyframes wobble-sync {
+  0%,100% { transform: rotate(-6deg); }
+  50%     { transform: rotate(6deg); }
+}
+.wobble-sync {
+  animation: wobble-sync var(--drift-duration) ease-in-out infinite;
+}
