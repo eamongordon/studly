@@ -1,4 +1,4 @@
-import { pgTable, text, vector, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, vector, boolean, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const lesson = pgTable("lessons", {
@@ -15,6 +15,8 @@ export const checkpoint = pgTable("checkpoints", {
   lessonId: text("lesson_id")
     .notNull()
     .references(() => lesson.id),
+  order: integer("order").notNull(),
+  objective: text("objective").notNull(),
   complete: boolean("complete").notNull().default(false),
 });
 

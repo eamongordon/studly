@@ -2,8 +2,8 @@
 
 import { useRef, useState, DragEvent } from 'react'
 import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 import { Button } from '@/components/ui/button'
-import { Lightbulb } from 'lucide-react'
 import FloatingIcons from '@/components/ui/floatingIcons'
 
 export default function Home () {
@@ -42,44 +42,56 @@ export default function Home () {
       setSelectedFile(e.target.files[0])
     }
   }
-  const [active, setActive] = useState<number>(); // default active = Method 2
+  const [active] = useState<number>();
+  const [fadeOut, setFadeOut] = useState(false);
   const router = useRouter();
+
+  const handleMethodClick = useCallback((method: number) => {
+    setFadeOut(true);
+    setTimeout(() => {
+      router.push(`/chat?method=${method}`);
+    }, 400); 
+  }, [router]);
 
   return (
     <div>
-      <div className='min-h-screen bg-gray-50 relative overflow-hidden'>
+  <div className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'}`}> 
         {/* Background lightbulb icons */}
         <FloatingIcons />
 
         {/* Header */}
-        <header className='relative z-10 flex items-center justify-between p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
-          <div className='flex items-center gap-2'>
-            <span className='text-xl font-semibold text-gray-800'>Stud.ly</span>
-            <img src='/lightbulb.svg' alt='Lightbulb' height={20} width={20} />
-          </div>
-          <div className='flex items-center gap-3'>
-            <Button
-              variant='outline'
-              className='text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent'
-            >
-              Sign up
-            </Button>
-            <Button className='bg-rose-300 hover:bg-rose-400 text-gray-800 border-0'>
-              Log in
-            </Button>
+        <header className="relative z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-6xl items-center justify-between p-6">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-semibold text-gray-800">Stud.ly</span>
+              <img src="/lightbulb.svg" alt="Lightbulb" height={20} width={20} />
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
+              >
+                Sign up
+              </Button>
+              <Button className="bg-rose-300 hover:bg-rose-400 text-gray-800 border-0">
+                Log in
+              </Button>
+            </div>
           </div>
         </header>
+
 
         {/* Main content */}
         <main className='relative z-10 max-w-6xl mx-auto px-6 py-12'>
           <div className='grid lg:grid-cols-2 gap-12 items-center'>
             {/* Left side - Text content */}
             <div className='space-y-6'>
-              <div className='space-y-4'>
-                <p className='text-sm text-gray-600 font-medium'>Lorem ipsum</p>
+              <div className='space-y-2'>
+                <p className='text-sm text-gray-600 font-medium'>Study tips from psychology</p>
                 <h1 className='text-4xl lg:text-5xl font-bold text-gray-900 leading-tight text-balance'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                  Stop "I don't know how to study"-ing
                 </h1>
+                <h3 className='text-md text-gray-600 font-medium'>Learn how to study with Stud.ly</h3>
               </div>
             </div>
 
@@ -96,7 +108,7 @@ export default function Home () {
             >
               <input
                 type='file'
-                accept='.pdf,.png,.jpeg,.jpg'
+                accept='.pdf,.png,.jpeg'
                 ref={fileInputRef}
                 style={{ display: 'none' }}
                 onChange={handleFileChange}
@@ -132,14 +144,11 @@ export default function Home () {
             {/* Method 1 */}
             <div
               role='button'
-              tabIndex={0}
-              onClick={() => { setActive(0); router.push('/chat?method=1'); }}
-              onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(0); router.push('/chat?method=1'); })()
-              }
-              className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
+              tabIndex={1}
+              onClick={() => handleMethodClick(1)}
+              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
-        active === 0
+        active === 1
           ? 'bg-rose-200/70 border-rose-300'
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
@@ -147,26 +156,19 @@ export default function Home () {
               <div className='font-medium text-gray-900'>Mnemonic Device: </div>
               <span> Memorize through song </span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition
-        ${
-          active === 0
-            ? 'border-rose-300 bg-white/60'
-            : 'border-gray-200 bg-gray-50'
-        }`}
-              />
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
+                
+              > Let's Go!</div>
             </div>
 
             {/* Method 2 */}
             <div
               role='button'
-              tabIndex={0}
-              onClick={() => { setActive(1); router.push('/chat?method=2'); }}
-              onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(1); router.push('/chat?method=2'); })()
-              }
-              className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
+              tabIndex={2}
+              onClick={() => handleMethodClick(2)}
+              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
-        active === 1
+        active === 2
           ? 'bg-rose-200/70 border-rose-300'
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
@@ -174,26 +176,18 @@ export default function Home () {
               <div className='font-medium text-gray-900'>Feynman Technique: </div>
               <span> Teach your notes </span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition
-        ${
-          active === 1
-            ? 'border-rose-300 bg-white/60'
-            : 'border-gray-200 bg-gray-50'
-        }`}
-              />
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
+              > Let's Go!</div>
             </div>
 
             {/* Method 3 */}
             <div
               role='button'
-              tabIndex={0}
-              onClick={() => { setActive(2); router.push('/chat?method=3'); }}
-              onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(2); router.push('/chat?method=3'); })()
-              }
-              className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
+              tabIndex={3}
+              onClick={() => handleMethodClick(3)}
+              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
-        active === 2
+        active === 3
           ? 'bg-rose-200/70 border-rose-300'
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
@@ -201,26 +195,19 @@ export default function Home () {
               <div className='font-medium text-gray-900'>Active Recall: </div>
               <span> Flash cards </span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition
-        ${
-          active === 2
-            ? 'border-rose-300 bg-white/60'
-            : 'border-gray-200 bg-gray-50'
-        }`}
-              />
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
+                
+              > Let's Go!</div>
             </div>
 
             {/* Method 4 */}
             <div
               role='button'
-              tabIndex={0}
-              onClick={() => { setActive(3); router.push('/chat?method=4'); }}
-              onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(3); router.push('/chat?method=4'); })()
-              }
-              className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
+              tabIndex={4}
+              onClick={() => handleMethodClick(4)}
+              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
-        active === 3
+        active === 4
           ? 'bg-rose-200/70 border-rose-300'
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
@@ -228,13 +215,9 @@ export default function Home () {
               <div className='font-medium text-gray-900'>Maintenance Rehearsal: </div>
               <span> Note iteration </span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition
-        ${
-          active === 3
-            ? 'border-rose-300 bg-white/60'
-            : 'border-gray-200 bg-gray-50'
-        }`}
-              />
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
+                
+              > Let's Go!</div>
             </div>
           </div>
         </main>
