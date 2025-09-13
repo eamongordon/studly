@@ -103,10 +103,11 @@ export class SunoService {
    * Poll for completion with automatic retry logic
    * Returns a promise that resolves when at least one clip is complete
    */
-  static async pollForCompletion(
+  static async pollForStatus(
     clipIds: string[],
+    status: string = "complete",
     maxAttempts: number = 60, // 5 minutes with 5-second intervals
-    interval: number = 5000 // 5 seconds
+    interval: number = 5000, // 5 seconds
   ): Promise<SunoClip[]> {
     let attempts = 0;
 
@@ -129,7 +130,7 @@ export class SunoService {
 
           const clips = statusResponse.clips;
           const completedClips = clips.filter(
-            (clip) => clip.status === "complete" && clip.audio_url
+            (clip) => clip.status === status && clip.audio_url
           );
           const errorClips = clips.filter((clip) => clip.status === "error");
 
