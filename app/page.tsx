@@ -55,7 +55,7 @@ export default function Home () {
     }
     const chatId = await createLesson(formData);
     setTimeout(() => {
-      router.push(`/chat/${chatId}`);
+      router.push(`/chat/${chatId}?method=${method}`);
     }, 400);
   }, [router, selectedFile]);
 
