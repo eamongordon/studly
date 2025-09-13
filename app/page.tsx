@@ -1,22 +1,14 @@
 import { Button } from '@/components/ui/button'
 import { Lightbulb } from 'lucide-react'
+import FloatingIcons from "@/components/ui/floatingIcons";
+
+
 export default function Home () {
   return (
     <div>
       <div className='min-h-screen bg-gray-50 relative overflow-hidden'>
         {/* Background lightbulb icons */}
-        <div className='absolute inset-0 pointer-events-none'>
-          <Lightbulb className='absolute top-20 left-16 w-6 h-6 text-gray-300 opacity-60' />
-          <Lightbulb className='absolute top-32 right-20 w-5 h-5 text-gray-300 opacity-40' />
-          <Lightbulb className='absolute top-40 left-1/3 w-4 h-4 text-gray-300 opacity-50' />
-          <Lightbulb className='absolute top-52 right-1/3 w-6 h-6 text-gray-300 opacity-30' />
-          <Lightbulb className='absolute top-64 left-1/4 w-5 h-5 text-gray-300 opacity-45' />
-          <Lightbulb className='absolute bottom-40 left-12 w-4 h-4 text-gray-300 opacity-35' />
-          <Lightbulb className='absolute bottom-52 right-16 w-6 h-6 text-gray-300 opacity-50' />
-          <Lightbulb className='absolute bottom-64 left-1/2 w-5 h-5 text-gray-300 opacity-40' />
-          <Lightbulb className='absolute bottom-32 right-1/4 w-4 h-4 text-gray-300 opacity-60' />
-          <Lightbulb className='absolute bottom-20 left-1/3 w-6 h-6 text-gray-300 opacity-30' />
-        </div>
+        <FloatingIcons />
 
         {/* Header */}
         <header className='relative z-10 flex items-center justify-between p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
