@@ -144,7 +144,8 @@ export default function Home () {
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
             >
-              <div className='font-medium text-gray-900'>Method 1:</div>
+              <div className='font-medium text-gray-900'>Mnemonic Device: </div>
+              <span> Memorize through song </span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition
         ${
@@ -170,7 +171,8 @@ export default function Home () {
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
             >
-              <div className='font-medium text-gray-900'>Method 2:</div>
+              <div className='font-medium text-gray-900'>Feynman Technique: </div>
+              <span> Teach your notes </span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition
         ${
@@ -196,7 +198,8 @@ export default function Home () {
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
             >
-              <div className='font-medium text-gray-900'>Method 3:</div>
+              <div className='font-medium text-gray-900'>Active Recall: </div>
+              <span> Flash cards </span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition
         ${
@@ -222,7 +225,8 @@ export default function Home () {
           : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
             >
-              <div className='font-medium text-gray-900'>Method 4:</div>
+              <div className='font-medium text-gray-900'>Maintenance Rehearsal: </div>
+              <span> Note iteration </span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition
         ${
