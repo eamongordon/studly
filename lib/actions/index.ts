@@ -2,8 +2,8 @@
 
 import { db } from '../db';
 import { lesson } from '../db/schema';
-import { generateEmbedding } from './embeddings';
-import { processFile } from './process-file';
+import { generateEmbedding } from '../fetchers/embeddings';
+import { processFile } from '../fetchers/process-file';
 
 export const createLesson = async (formData: FormData) => {
   const processedFileResult = await processFile(formData);

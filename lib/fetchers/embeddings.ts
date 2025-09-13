@@ -1,5 +1,3 @@
-"use server";
-
 import { embed } from 'ai';
 import { openai } from '@ai-sdk/openai';
 

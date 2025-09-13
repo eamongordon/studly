@@ -1,5 +1,3 @@
-"use server";
-
 import pdf from 'pdf-parse';
 import { createWorker } from 'tesseract.js';
 

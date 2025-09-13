@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { checkpoint } from "./db/schema";
+import { db } from "@/lib/db";
+import { checkpoint } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function getCurrentCheckpoint(lessonId: string) {
