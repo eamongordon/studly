@@ -34,8 +34,6 @@ export async function POST(req: Request) {
           const clipIds = generationResponse.clips.map((clip) => clip.id);
 
           const clips = await SunoService.pollForStatus(clipIds, "streaming"); // audio url is available but not complete
-          console.log(clips)
-          
           return {
             clips,
           };
