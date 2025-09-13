@@ -49,6 +49,9 @@ export default function Chat({ slug }: { slug: string }) {
     const { messages, sendMessage, stop, status } = useChat({
         transport: new DefaultChatTransport({
             api: '/api/chat',
+            body: {
+                id: slug
+            }
         }),
     });
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
