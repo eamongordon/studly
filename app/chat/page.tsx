@@ -3,7 +3,7 @@
 import { MemoizedMarkdown } from '@/components/chat/memoized-markdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SunoClip } from '@/lib/suno-service';
+import { SunoClip, SunoService } from '@/lib/suno-service';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
@@ -13,13 +13,26 @@ import { useSearchParams } from 'next/navigation';
 
 function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
     const output = part.output;
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (output?.clips) {
+            setAudioUrl(output.clips[0].audio_url)
+            const pollForCompletion = async () => {
+                // Poll for "complete" status
+                const newClips = await SunoService.pollForStatus(output.clips.map((clip) => clip.id), "complete");
+                setAudioUrl(newClips[0].audio_url);
+            }
+            pollForCompletion();
+        }
+    }, [output]);
 
     return (
         <div className='prose dark:prose-invert'>
             {Boolean(output) ?
                 <>
                     <img src={output.clips[0].image_url || undefined} alt="Song cover" className="w-full h-auto" />
-                    <audio src={output.clips[0].audio_url || undefined} controls />
+                    <audio src={audioUrl || undefined} controls />
                     <div className="lyrics">
                         <h2 className="text-2xl font-semibold my-5">Lyrics</h2>
                         <MemoizedMarkdown content={output.clips[0].metadata.prompt || ""} id={output.clips[0].id} />

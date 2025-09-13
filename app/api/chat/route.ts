@@ -18,8 +18,8 @@ export async function POST(req: Request) {
       generateSong: tool({
         description: "Generates a song using AI",
         inputSchema: z.object({
-          prompt: z.string(),
-          tags: z.string().optional(),
+          prompt: z.string().describe("Describe your song!"),
+          tags: z.string().optional().describe("Specify genres, instruments, and moods (e.g., 'rock, electric guitar, energetic')"),
         }),
         execute: async ({ prompt, tags }) => {
           const generationResponse = await SunoService.generateSong({
@@ -34,8 +34,6 @@ export async function POST(req: Request) {
           const clipIds = generationResponse.clips.map((clip) => clip.id);
 
           const clips = await SunoService.pollForStatus(clipIds, "streaming"); // audio url is available but not complete
-          console.log(clips)
-          
           return {
             clips,
           };
