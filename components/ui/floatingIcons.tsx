@@ -3,15 +3,17 @@
 type IconPos = { top?: string; bottom?: string; left?: string; right?: string };
 
 const ICONS: IconPos[] = [
-  { top: "80px", left: "72px" },
-  { top: "120px", right: "88px" },
-  { top: "160px", left: "32%" },
-  { top: "200px", right: "34%" },
-  { top: "260px", left: "25%" },
-  { bottom: "160px", left: "48%" },
-  { bottom: "120px", right: "64px" },
-  { bottom: "200px", right: "25%" },
-  { bottom: "140px", left: "20%" },
+  // edges
+  { top: "8%", left: "10%" },
+  { top: "12%", right: "12%" },
+  { top: "16%", right: "60%" },
+  { bottom: "10%", left: "15%" },
+  { bottom: "8%", right: "18%" },
+
+  // subtle middle (spread high/low so they don’t overlap text/cards)
+  { top: "35%", left: "8%" },   // left-center
+  { top: "40%", right: "10%" }, // right-center
+  { bottom: "30%", left: "45%" } // one faint bulb near center bottom
 ];
 
 export default function FloatingIcons() {
@@ -19,17 +21,14 @@ export default function FloatingIcons() {
     <div className="absolute inset-0 pointer-events-none z-0">
       <style jsx>{`
         @keyframes float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-12px);
-          }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
         }
         .float {
-          animation: float 4s ease-in-out infinite;
+          animation: float 6s ease-in-out infinite;
         }
       `}</style>
+
       {ICONS.map((p, i) => (
         <div
           key={i}
@@ -39,7 +38,7 @@ export default function FloatingIcons() {
           <img
             src="/lightbulb.svg"
             alt="lightbulb"
-            className="w-6 h-6 opacity-50 float"
+            className="w-6 h-6 opacity-40 float"
           />
         </div>
       ))}
