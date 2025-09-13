@@ -7,7 +7,7 @@ import { SunoClip, SunoService } from '@/lib/suno-service';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Cat, CircleAlert, CircleStop, Send, Shrimp, Snail } from 'lucide-react';
+import { CircleAlert, CircleStop, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
@@ -38,12 +38,12 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
                         <MemoizedMarkdown content={output.clips[0].metadata.prompt || ""} id={output.clips[0].id} />
                     </div>
                 </>
-            : <div className="">Generating song...</div>}
+                : <div className="">Generating song...</div>}
         </div>
     );
 }
 
-export default function Page() {
+export default function Chat({ slug }: { slug: string }) {
     const searchParams = useSearchParams();
     const method = searchParams.get('method');
     const { messages, sendMessage, stop, status } = useChat({
