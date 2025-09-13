@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { Button } from '@/components/ui/button'
 import FloatingIcons from '@/components/ui/floatingIcons'
+import { createLesson } from '@/lib/actions';
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -46,12 +47,17 @@ export default function Home () {
   const [fadeOut, setFadeOut] = useState(false);
   const router = useRouter();
 
-  const handleMethodClick = useCallback((method: number) => {
+  const handleMethodClick = useCallback(async (method: number) => {
     setFadeOut(true);
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    }
+    const chatId = await createLesson(formData);
     setTimeout(() => {
-      router.push(`/chat?method=${method}`);
+      router.push(`/chat/${chatId}`);
     }, 400);
-  }, [router]);
+  }, [router, selectedFile]);
 
   return (
     <div>
