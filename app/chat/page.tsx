@@ -3,11 +3,31 @@
 import { MemoizedMarkdown } from '@/components/chat/memoized-markdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SunoClip } from '@/lib/suno-service';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Cat, CircleAlert, CircleStop, Send, Shrimp, Snail } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+
+function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
+    const output = part.output;
+
+    return (
+        <div className='prose dark:prose-invert'>
+            {Boolean(output) ?
+                <>
+                    <img src={output.clips[0].image_url || undefined} alt="Song cover" className="w-full h-auto" />
+                    <audio src={output.clips[0].audio_url || undefined} controls />
+                    <div className="lyrics">
+                        <h2 className="text-2xl font-semibold my-5">Lyrics</h2>
+                        <MemoizedMarkdown content={output.clips[0].metadata.prompt || ""} id={output.clips[0].id} />
+                    </div>
+                </>
+            : <div className="">Generating song...</div>}
+        </div>
+    );
+}
 
 export default function Page() {
     const { messages, sendMessage, stop, status } = useChat({
@@ -49,12 +69,21 @@ export default function Page() {
                                             : 'bg-muted rounded-2xl p-5'
                                     )}
                                 >
-                                    {message.parts.map((part, index) => (
-                                        <div key={index} className={cn('prose dark:prose-invert', message.role === 'user' && 'text-primary-foreground')}>
-                                            {part.type === 'text' && <MemoizedMarkdown id={message.id} content={part.text} />}
-                                            {part.type.startsWith("tool-") && <div>Calling {part.type}</div>}
-                                        </div>
-                                    ))}
+                                    {message.parts.map((part, index) => {
+                                        if (part.type === 'text') {
+                                            return (
+                                                <div key={index} className={cn('prose dark:prose-invert', message.role === 'user' && 'text-primary-foreground')}>
+                                                    <MemoizedMarkdown id={message.id} content={part.text} />
+                                                </div>
+                                            );
+                                        }
+                                        if (part.type === 'tool-generateSong') {
+                                            return (
+                                                <SongGeneration key={index} part={part as { output: { clips: SunoClip[] } }} />
+                                            );
+                                        }
+                                        return null;
+                                    })}
                                 </div>
                             ) : status === "submitted" || status === "streaming" ? (
                                 <div className='bg-muted rounded-2xl p-5 my-8 mb-4'>
