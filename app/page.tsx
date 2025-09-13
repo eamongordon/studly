@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, DragEvent } from 'react'
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button'
 import { Lightbulb } from 'lucide-react'
 import FloatingIcons from '@/components/ui/floatingIcons'
@@ -41,7 +42,8 @@ export default function Home () {
       setSelectedFile(e.target.files[0])
     }
   }
-  const [active, setActive] = useState<number>(1); // default active = Method 2
+  const [active, setActive] = useState<number>(); // default active = Method 2
+  const router = useRouter();
 
   return (
     <div>
@@ -131,9 +133,9 @@ export default function Home () {
             <div
               role='button'
               tabIndex={0}
-              onClick={() => setActive(0)}
+              onClick={() => { setActive(0); router.push('/chat?method=1'); }}
               onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && setActive(0)
+                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(0); router.push('/chat?method=1'); })()
               }
               className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
@@ -157,9 +159,9 @@ export default function Home () {
             <div
               role='button'
               tabIndex={0}
-              onClick={() => setActive(1)}
+              onClick={() => { setActive(1); router.push('/chat?method=2'); }}
               onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && setActive(1)
+                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(1); router.push('/chat?method=2'); })()
               }
               className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
@@ -183,9 +185,9 @@ export default function Home () {
             <div
               role='button'
               tabIndex={0}
-              onClick={() => setActive(2)}
+              onClick={() => { setActive(2); router.push('/chat?method=3'); }}
               onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && setActive(2)
+                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(2); router.push('/chat?method=3'); })()
               }
               className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
@@ -209,9 +211,9 @@ export default function Home () {
             <div
               role='button'
               tabIndex={0}
-              onClick={() => setActive(3)}
+              onClick={() => { setActive(3); router.push('/chat?method=4'); }}
               onKeyDown={e =>
-                (e.key === 'Enter' || e.key === ' ') && setActive(3)
+                (e.key === 'Enter' || e.key === ' ') && (() => { setActive(3); router.push('/chat?method=4'); })()
               }
               className={`rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
