@@ -50,7 +50,7 @@ export default function Home () {
     setFadeOut(true);
     setTimeout(() => {
       router.push(`/chat?method=${method}`);
-    }, 400); 
+    }, 400);
   }, [router]);
 
   return (
@@ -87,7 +87,7 @@ export default function Home () {
             {/* Left side - Text content */}
             <div className='space-y-6'>
               <div className='space-y-2'>
-                <p className='text-sm text-gray-600 font-medium'>Study tips from psychology</p>
+                <p className='text-sm text-gray-600 font-medium'>Study methods from psychology</p>
                 <h1 className='text-4xl lg:text-5xl font-bold text-gray-900 leading-tight text-balance'>
                   Stop "I don't know how to study"-ing
                 </h1>

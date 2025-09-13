@@ -9,6 +9,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Cat, CircleAlert, CircleStop, Send, Shrimp, Snail } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
     const output = part.output;
@@ -30,6 +31,8 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
 }
 
 export default function Page() {
+    const searchParams = useSearchParams();
+    const method = searchParams.get('method');
     const { messages, sendMessage, stop, status } = useChat({
         transport: new DefaultChatTransport({
             api: '/api/chat',
@@ -38,11 +41,6 @@ export default function Page() {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const [input, setInput] = useState('');
 
-    const prompts = [
-        { icon: <Shrimp />, text: "Why are elephants so big?" },
-        { icon: <Snail />, text: "Why do zebras have stripes?" },
-        { icon: <Cat />, text: "Why do houses have roofs?" }
-    ];
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'nearest' });
@@ -114,19 +112,29 @@ export default function Page() {
                         <br />
                         <i>Remember, I&apos;m an AI, and still make mistakes!</i>
                     </p>
-                    {/* Prompt containers */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 w-full">
-                        {prompts.map((prompt, index) => (
-                            <Button
-                                key={index}
-                                variant="outline"
-                                className="gap-4 md:gap-2 justify-start md:flex md:flex-col md:h-auto md:whitespace-normal md:[&_svg]:size-5 md:py-4"
-                                onClick={() => sendMessage({ text: prompt.text })}
-                            >
-                                {prompt.icon}
-                                {prompt.text}
-                            </Button>
-                        ))}
+                    <div className="mt-4 w-full">
+                        <>
+                            {method === '1' && (
+                                <div className="p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold">
+                                    You selected the Mnemonic Device!
+                                </div>
+                            )}
+                            {method === '2' && (
+                                <div className="p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold">
+                                    You selected the Feynman Technique!
+                                </div>
+                            )}
+                            {method === '3' && (
+                                <div className="p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold">
+                                    You selected Active Recall!
+                                </div>
+                            )}
+                            {method === '4' && (
+                                <div className="p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold">
+                                    You selected the Maintenance Rehearsal!
+                                </div>
+                            )}
+                        </>
                     </div>
                 </div>
             )}
