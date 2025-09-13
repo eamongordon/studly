@@ -1,9 +1,11 @@
 "use server";
 
+import { db } from '../db';
+import { lesson } from '../db/schema';
 import { generateEmbedding } from './embeddings';
 import { processFile } from './process-file';
 
-export const generateEmbeddingsFromFile = async (formData: FormData) => {
+export const createLesson = async (formData: FormData) => {
   const processedFileResult = await processFile(formData);
 
   if ('error' in processedFileResult) {
@@ -15,10 +17,23 @@ export const generateEmbeddingsFromFile = async (formData: FormData) => {
   }
 
   try {
-    const embedding = await generateEmbedding(processedFileResult.text);
-    return { embedding };
+    const embeddingResult = await generateEmbedding(processedFileResult.text);
+
+    if ('error' in embeddingResult) {
+      return embeddingResult;
+    }
+
+    const [newLesson] = await db
+      .insert(lesson)
+      .values({
+        source: processedFileResult.text,
+        embedding: embeddingResult.embedding,
+      })
+      .returning({ id: lesson.id });
+
+    return { lessonId: newLesson.id };
   } catch (error) {
     console.error(error);
-    return { error: 'Error generating embeddings' };
+    return { error: 'Error generating embeddings or saving lesson' };
   }
 };
