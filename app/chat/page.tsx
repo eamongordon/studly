@@ -52,6 +52,7 @@ export default function Page() {
                                     {message.parts.map((part, index) => (
                                         <div key={index} className={cn('prose dark:prose-invert', message.role === 'user' && 'text-primary-foreground')}>
                                             {part.type === 'text' && <MemoizedMarkdown id={message.id} content={part.text} />}
+                                            {part.type.startsWith("tool-") && <div>Calling {part.type}</div>}
                                         </div>
                                     ))}
                                 </div>
@@ -113,6 +114,7 @@ export default function Page() {
                     onKeyDown={async event => {
                         if (event.key === 'Enter') {
                             sendMessage({ text: input });
+                            setInput('');
                         }
                     }}
                     placeholder="Type your message..."
@@ -121,7 +123,10 @@ export default function Page() {
                 <Button
                     onClick={async () => {
                         if (status === 'submitted' || status === 'streaming') stop();
-                        else sendMessage({ text: input });
+                        else {
+                            sendMessage({ text: input });
+                            setInput('');
+                        }
                     }}
                     className='h-12 [&_svg]:h-5 [&_svg]:w-5'
                     disabled={input.length === 0}
