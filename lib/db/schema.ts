@@ -6,6 +6,7 @@ export const lesson = pgTable("lessons", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   embedding: vector("embedding", { dimensions: 1536 }),
+  source: text("source"),
 });
 
 export const checkpoint = pgTable("checkpoints", {
