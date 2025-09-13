@@ -5,11 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { Cat, CircleAlert, CircleStop, Send, Shrimp, Snail } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function Page() {
-    const { messages, sendMessage, stop, status } = useChat();
+    const { messages, sendMessage, stop, status } = useChat({
+        transport: new DefaultChatTransport({
+            api: '/api/chat',
+        }),
+    });
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const [input, setInput] = useState('');
 
