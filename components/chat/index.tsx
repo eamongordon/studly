@@ -7,7 +7,7 @@ import { SunoClip, SunoService } from '@/lib/suno-service';
 import { cn } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Cat, CircleAlert, CircleStop, Send, Shrimp, Snail } from 'lucide-react';
+import { CircleAlert, CircleStop, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
