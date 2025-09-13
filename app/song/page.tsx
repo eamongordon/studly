@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Download, Music, Sparkles, Play, Pause } from "lucide-react";
 import { SunoService, SunoClip } from "@/lib/suno-service";
@@ -298,7 +297,7 @@ export default function MusicGenerator() {
                   >
                     Describe your song!
                   </label>
-                  <Textarea
+                  <textarea
                     id="prompt"
                     placeholder="An upbeat pop song about summer adventures with electric guitar and synths..."
                     value={prompt}
@@ -315,7 +314,7 @@ export default function MusicGenerator() {
                   >
                     Style tags (optional)
                   </label>
-                  <Textarea
+                  <textarea
                     id="tags"
                     placeholder="pop, electronic, guitar, upbeat..."
                     value={tags}
