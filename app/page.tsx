@@ -135,7 +135,7 @@ export default function Home () {
         }
       `}</style>
       <div
-        className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${
+        className={`min-h-screen bg-rose-50/30 relative overflow-hidden transition-all duration-400 ${
           fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'
         }`}
       >
@@ -143,7 +143,7 @@ export default function Home () {
         <FloatingIcons />
 
         {/* Header */}
-        <header className='relative z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
+        <header className='relative z-10 border-b border-rose-200/50 bg-white/90 backdrop-blur-sm shadow-sm'>
           <div className='mx-auto flex max-w-6xl items-center justify-between p-4'>
             <div className='flex items-center gap-2'>
               <Image
@@ -156,11 +156,11 @@ export default function Home () {
             <div className='flex items-center gap-3'>
               <Button
                 variant='outline'
-                className='text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent'
+                className='text-gray-700 border-rose-200 hover:bg-rose-50 bg-transparent hover:border-rose-300'
               >
                 Sign up
               </Button>
-              <Button className='bg-rose-300 hover:bg-rose-400 text-gray-800 border-0'>
+              <Button className='bg-rose-400 hover:bg-rose-500 text-white border-0 shadow-sm'>
                 Log in
               </Button>
             </div>
@@ -176,10 +176,10 @@ export default function Home () {
                 <p className='text-sm text-gray-600 font-medium'>
                   Based off cognitive learning psychology
                 </p>
-                <h1 className='text-4xl lg:text-5xl font-bold text-gray-900 leading-tight text-balance'>
+                <h1 className='text-4xl lg:text-5xl font-bold text-gray-800 leading-tight text-balance'>
                   Be a Stud.
                 </h1>
-                <h3 className='text-xl text-rose-300 font-semibold'>
+                <h3 className='text-xl text-rose-500 font-semibold'>
                   Let our Agent help you <b><i>remember</i></b>, <b><i>learn</i></b>, and <b><i>teach</i></b>!{' '}
                 </h3>
                 <h3 className='text-md text-gray-600 font-medium'>
@@ -190,12 +190,12 @@ export default function Home () {
 
             {/* Right side - File upload area (Dropzone) */}
             <div
-              className={`rounded-xl bg-rose-200/70 border border-rose-300 p-5 transition-shadow ${
+              className={`rounded-xl bg-rose-100/60 border border-rose-300/60 p-5 transition-all duration-300 shadow-lg ${
                 isDragActive
-                  ? 'ring-2 ring-rose-400 shadow-lg'
+                  ? 'ring-2 ring-rose-400 shadow-xl scale-[1.02]'
                   : !selectedFile
                   ? 'soft-glow'
-                  : ''
+                  : 'shadow-md'
               }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -211,8 +211,8 @@ export default function Home () {
                 onChange={handleFileChange}
               />
               <div
-                className={`rounded-2xl border-2 border-dashed border-rose-300 bg-rose-100/30 p-10 flex flex-col items-center justify-center text-center transition-colors ${
-                  isDragActive ? 'bg-rose-100/60 border-rose-400' : ''
+                className={`rounded-2xl border-2 border-dashed border-rose-300/60 bg-rose-50/40 p-10 flex flex-col items-center justify-center text-center transition-all duration-300 ${
+                  isDragActive ? 'bg-rose-100/60 border-rose-400 scale-[1.02]' : ''
                 }`}
               >
                 <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'></div>
@@ -234,7 +234,7 @@ export default function Home () {
             </div>
           </div>
 
-          <div className='mt-14 border-t border-gray-200' />
+          <div className='mt-14 border-t border-rose-200/50' />
 
           {/* Bottom section - Methods */}
           <div className='mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
@@ -245,23 +245,21 @@ export default function Home () {
               onClick={() => handleMethodClick('song')}
               onMouseEnter={() => setHoverIndex(1)}
               onMouseLeave={() => setHoverIndex(null)}
-              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${
+              className={`group relative rounded-2xl p-6 border shadow-sm transition-all duration-300 cursor-pointer transform hover:scale-[1.02] ${
       currentActive === 1
-        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+        ? 'bg-rose-100/70 border-rose-400 -translate-y-1 shadow-lg ring-1 ring-rose-300'
+        : 'bg-white/80 border-rose-200/50 hover:border-rose-300 hover:bg-rose-50/50 hover:-translate-y-1 hover:shadow-md backdrop-blur-sm'
     }
   `}
             >
-              <div className='font-semibold text-lg text-gray-900'>Musical Mnemonics</div>
-              <span>Memorize through songs.</span>
+              <div className='font-semibold text-lg text-gray-800'>Musical Mnemonics</div>
+              <span className='text-gray-600'>Memorize through songs.</span>
 
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
-      ${
+                className={`mt-5 h-10 w-full rounded-lg border transition-all duration-300 p-2 text-center flex items-center justify-center gap-2 font-medium ${
         currentActive === 1
-          ? 'border-rose-300 bg-rose-100 text-black'
-          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
+          ? 'border-rose-400 bg-rose-200 text-gray-800 shadow-sm'
+          : 'border-rose-200/60 bg-rose-50/60 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-gray-800'
       }
     `}
               >
@@ -277,24 +275,22 @@ export default function Home () {
               onClick={() => handleMethodClick('teach')}
               onMouseEnter={() => setHoverIndex(2)}
               onMouseLeave={() => setHoverIndex(null)}
-              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${
+              className={`group relative rounded-2xl p-6 border shadow-sm transition-all duration-300 cursor-pointer transform hover:scale-[1.02] ${
       currentActive === 2
-        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+        ? 'bg-rose-100/70 border-rose-400 -translate-y-1 shadow-lg ring-1 ring-rose-300'
+        : 'bg-white/80 border-rose-200/50 hover:border-rose-300 hover:bg-rose-50/50 hover:-translate-y-1 hover:shadow-md backdrop-blur-sm'
     }
   `}
             >
-              <div className='font-semibold text-lg text-gray-900'>
+              <div className='font-semibold text-lg text-gray-800'>
                Lesson Plan
               </div>
-              <span>Let Studly teach you!</span>
+              <span className='text-gray-600'>Let Studly teach you!</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
-      ${
+                className={`mt-5 h-10 w-full rounded-lg border transition-all duration-300 p-2 text-center flex items-center justify-center gap-2 font-medium ${
         currentActive === 2
-          ? 'border-rose-300 bg-rose-100 text-black'
-          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
+          ? 'border-rose-400 bg-rose-200 text-gray-800 shadow-sm'
+          : 'border-rose-200/60 bg-rose-50/60 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-gray-800'
       }
     `}
               >
@@ -310,22 +306,20 @@ export default function Home () {
               onClick={() => handleMethodClick('flashcard')}
               onMouseEnter={() => setHoverIndex(3)}
               onMouseLeave={() => setHoverIndex(null)}
-              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${
+              className={`group relative rounded-2xl p-6 border shadow-sm transition-all duration-300 cursor-pointer transform hover:scale-[1.02] ${
       currentActive === 3
-        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+        ? 'bg-rose-100/70 border-rose-400 -translate-y-1 shadow-lg ring-1 ring-rose-300'
+        : 'bg-white/80 border-rose-200/50 hover:border-rose-300 hover:bg-rose-50/50 hover:-translate-y-1 hover:shadow-md backdrop-blur-sm'
     }
   `}
             >
-              <div className='font-semibold text-lg text-gray-900'>Active Recall</div>
-              <span>Review with flash cards.</span>
+              <div className='font-semibold text-lg text-gray-800'>Active Recall</div>
+              <span className='text-gray-600'>Review with flash cards.</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
-      ${
+                className={`mt-5 h-10 w-full rounded-lg border transition-all duration-300 p-2 text-center flex items-center justify-center gap-2 font-medium ${
         currentActive === 3
-          ? 'border-rose-300 bg-rose-100 text-black'
-          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
+          ? 'border-rose-400 bg-rose-200 text-gray-800 shadow-sm'
+          : 'border-rose-200/60 bg-rose-50/60 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-gray-800'
       }
     `}
               >
@@ -341,24 +335,21 @@ export default function Home () {
               onClick={() => handleMethodClick('rehearse')}
               onMouseEnter={() => setHoverIndex(4)}
               onMouseLeave={() => setHoverIndex(null)}
-              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${
-      currentActive === 4
-        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-    }
-  `}
+              className={`group relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] cursor-pointer ${
+                currentActive === 4
+                  ? 'border-rose-400 bg-white/95 p-6 shadow-2xl ring-1 ring-rose-300 -translate-y-0.5'
+                  : 'border-rose-200/50 bg-white/80 p-6 shadow-lg hover:border-rose-300 hover:bg-white/90 hover:shadow-xl hover:ring-1 hover:ring-rose-300 hover:-translate-y-0.5'
+              }`}
             >
-              <div className='font-semibold text-lg text-gray-900'>
+              <div className='font-semibold text-lg text-gray-800'>
                 Rehearsal
               </div>
-              <span>Rehearse your notes.</span>
+              <span className='text-gray-600'>Rehearse your notes.</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
-      ${
+                className={`mt-5 h-10 w-full rounded-lg border transition-all duration-300 p-2 text-center flex items-center justify-center gap-2 font-medium ${
         currentActive === 4
-          ? 'border-rose-300 bg-rose-100 text-black'
-          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
+          ? 'border-rose-400 bg-rose-200 text-gray-800 shadow-sm'
+          : 'border-rose-200/60 bg-rose-50/60 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-gray-800'
       }
     `}
               >
