@@ -75,7 +75,7 @@ export default function Chat ({
     transport: new DefaultChatTransport({
       api: '/api/chat',
       body: {
-        id: slug
+        lessonId: slug
       }
     })
   })
@@ -144,6 +144,24 @@ export default function Chat ({
                           key={index}
                           part={part as { output: { clips: SunoClip[] } }}
                         />
+                      )
+                    }
+                    {/*Workaround for non-text streaming*/}
+                    if (part.type === 'tool-giveInfo' && part.output && (part as { output: { info: string } }).output.info) {
+                      console.log("part", part)
+                      return (
+                        <div
+                          key={index}
+                          className={cn(
+                            'prose dark:prose-invert',
+                            message.role === 'user' && 'text-primary-foreground'
+                          )}
+                        >
+                          <MemoizedMarkdown
+                            id={message.id}
+                            content={(part as { output: { info: string } }).output.info}
+                          />
+                        </div>
                       )
                     }
                     return null
