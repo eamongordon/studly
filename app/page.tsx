@@ -161,10 +161,10 @@ export default function Home() {
                   Based off cognitive learning psychology
                 </p>
                 <h1 className='text-4xl lg:text-5xl font-bold text-gray-900 leading-tight text-balance'>
-                  Stop "I don't know how to study"-ing
+                  Be a Stud.
                 </h1>
-                <h3 className='text-md text-gray-600 font-medium'>
-                  Learn how to study with Stud.ly!{' '}
+                <h3 className='text-xl text-rose-300 font-semibold'>
+                  Let our Agent help you <b><i>remember</i></b>, <b><i>learn</i></b>, and <b><i>teach</i></b>!{' '}
                 </h3>
                 <h3 className='text-md text-gray-600 font-medium'>
                   Choose a study method below to begin

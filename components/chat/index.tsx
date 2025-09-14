@@ -232,78 +232,103 @@ export default function Chat({
                         return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='giveInfo' />;
                       }
                     }
-                    if (part.type === 'tool-fetchNotes') {
-                      if (!part.output || !(part as { output: { notes: string } }).output.notes) {
-                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='fetchNotes' />;
-                      }
-                    }
-                    if (part.type === 'tool-generateQuiz') {
-                      if (
-                        part.output &&
-                        (
-                          part as {
-                            output: {
-                              question: string;
-                              options: string[];
-                              answer: string;
-                              checkpointId: string;
-                            };
-                          }
-                        ).output.question
-                      ) {
-                        console.log('PART QUIZ', part);
-                        return (
-                          <QuizDisplay
-                            part={{
-                              result: (
-                                part as {
-                                  output: {
-                                    question: string;
-                                    options: string[];
-                                    answer: string;
-                                    checkpointId: string;
-                                  };
-                                }
-                              ).output,
-                            }}
-                            lessonId={slug}
-                            key={`${message.id}-${index}`}
-                            onComplete={() => {
-                              sendMessage({
-                                text: 'I answered the quiz correctly.',
-                              });
-                            }}
-                            onRetry={() => {
-                              sendMessage({
-                                text: 'I would like to try another question for the last objective.',
-                              });
-                            }}
+                    
+                    if (part.type === 'tool-getNotes' && part.output && (part as { output: { notes: string } }).output.notes) {
+                      return (
+                        <div
+                          key={index}
+                          className={cn(
+                            'prose dark:prose-invert',
+                            message.role === 'user' && 'text-primary-foreground'
+                          )}
+                        >
+                          <h3>Your Notes:</h3>
+                          <MemoizedMarkdown
+                            id={message.id}
+                            content={(part as { output: { notes: string } }).output.notes}
                           />
-                        );
-                      } else {
-                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='generateQuiz' />;
-                      }
+                        </div>
+                      )
                     }
-                    if (part.type === 'tool-freeResponse') {
-                      if (part.output && (part as { output: { feedback: string } }).output.feedback) {
-                        return (
-                          <div
-                            key={index}
-                            className={cn(
-                              'prose dark:prose-invert',
-                              message.role === 'user' && 'text-primary-foreground'
-                            )}
-                          >
-                            <MemoizedMarkdown
-                              id={message.id}
-                              content={(part as { output: { feedback: string } }).output.feedback}
-                            />
+                    if (
+                      part.type === 'tool-generateQuiz' &&
+                      part.output &&
+                      (
+                        part as {
+                          output: {
+                            question: string;
+                            options: string[];
+                            answer: string;
+                            checkpointId: string;
+                          };
+                        }
+                      ).output.question
+                    ) {
+                      console.log('PART QUIZ', part);
+                      return (
+                        <QuizDisplay
+                          part={{
+                            result: (
+                              part as {
+                                output: {
+                                  question: string;
+                                  options: string[];
+                                  answer: string;
+                                  checkpointId: string;
+                                };
+                              }
+                            ).output,
+                          }}
+                          lessonId={slug}
+                          key={`${message.id}-${index}`}
+                          onComplete={() => {
+                            sendMessage({
+                              text: 'Great, what is the next objective?',
+                            });
+                          }}
+                          onRetry={() => {
+                            sendMessage({
+                              text: 'I would like to try another question for the last objective.',
+                            });
+                          }}
+                        />
+                      );
+                    }
+                    if (part.type === 'tool-generateFlashcards') {
+                      const result = (part as { output: { cards?: any[]; error?: string } }).output;
+                      return (
+                        <div key={index} className="prose dark:prose-invert">
+                          <h3>Generated Flashcards</h3>
+                          {result.error ? (
+                            <div className="bg-red-50 p-4 rounded-lg">
+                              <p className="text-red-800">{result.error}</p>
+                            </div>
+                          ) : (
+                            <div>
+                              {result.cards?.map((card, idx) => (
+                                <div key={idx} className="border rounded p-3 mb-2">
+                                  <p><strong>Q:</strong> {card.question}</p>
+                                  <p><strong>A:</strong> {card.answer}</p>
+                                </div>
+                              )) || <p>No flashcards generated.</p>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    
+                    if (part.type === 'tool-compareRehearsal') {
+                      const result = (part as { output: { feedback?: string; error?: string } }).output;
+                      return (
+                        <div key={index} className="prose dark:prose-invert">
+                          <h3>Recall Comparison Feedback</h3>
+                          <div className={result.error ? "bg-red-50 p-4 rounded-lg" : "bg-blue-50 p-4 rounded-lg"}>
+                            <p>{result.feedback || result.error || 'No feedback available'}</p>
                           </div>
-                        )
-                      } else {
-                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='freeResponse' />;
-                      }
+                        </div>
+                      );
                     }
+                    
                     return null
                   })}
                 </div>
