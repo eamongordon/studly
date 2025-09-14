@@ -8,12 +8,15 @@ import { cn } from '@/lib/utils'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { CircleAlert, CircleStop, Send } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, ComponentType } from 'react'
 import { useSearchParams } from 'next/navigation'
 import QuizGenerator from '@/components/quiz/quizGenerator'
 import { Lesson } from '@/lib/db/schema'
+import Link from 'next/link'
+import Quiz from '../quiz/quiz';
+import { LessonMode } from '@/lib/types'
 
-function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) {
+function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
@@ -57,15 +60,43 @@ function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) 
   )
 }
 
-export default function Chat ({ slug, lessonData }: { slug: string, lessonData: Lesson }) {
-  const method = lessonData.mode?.toString();
+function ToolInfo({ part }: { part: { result: { info: string } } }) {
+  return (
+    <div className='prose dark:prose-invert'>
+      <MemoizedMarkdown
+        id={part.result.info}
+        content={part.result.info}
+      />
+    </div>
+  );
+}
+
+function QuizDisplay({ part }: { part: { result: { question: string; options: string[]; answer: string; } } }) {
+  const { result } = part;
+  return <Quiz {...result} />;
+}
+
+export default function Chat({
+  slug,
+  lessonData
+}: {
+  slug: string
+  lessonData: Lesson
+}) {
+  const searchParams = useSearchParams()
+  const QuizAny = QuizGenerator as unknown as ComponentType<any>;
+
+  const method = (
+    (lessonData.mode ?? searchParams.get('method') ?? '') as LessonMode
+  ).toLowerCase()
   const { messages, sendMessage, stop, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
       body: {
-        id: slug
-      }
-    })
+        lessonId: slug,
+        mode: lessonData.mode,
+      },
+    }),
   })
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [input, setInput] = useState('')
@@ -116,6 +147,17 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
 
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
+        
+      <div className='fixed top-3 left-3 md:top-4 md:left-4 z-50'>
+        <Button
+          asChild
+          size='sm'
+          variant='outline'
+          className='bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+        >
+          <Link href='/'>← Back to home</Link>
+        </Button>
+      </div>
       {messages.length > 0 ? (
         <div className='flex-1 w-full overflow-y-auto pt-8'>
           {messages.map((message, index) => (
@@ -160,6 +202,28 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
                         />
                       )
                     }
+                    {/*Workaround for non-text streaming*/ }
+                    if (part.type === 'tool-giveInfo' && part.output && (part as { output: { info: string } }).output.info) {
+                      console.log("part", part)
+                      return (
+                        <div
+                          key={index}
+                          className={cn(
+                            'prose dark:prose-invert',
+                            message.role === 'user' && 'text-primary-foreground'
+                          )}
+                        >
+                          <MemoizedMarkdown
+                            id={message.id}
+                            content={(part as { output: { info: string } }).output.info}
+                          />
+                        </div>
+                      )
+                    }
+                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string } }).output.question) {
+                      console.log("PART QUIZ", part)
+                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string } }).output }} key={`${message.id}-${index}`} />;
+                    }
                     return null
                   })}
                 </div>
@@ -202,26 +266,26 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
           </p>
           <div className='mt-4 w-full'>
             <>
-              {method === "song" && (
+              {method === 'song' && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Mnemonic Device!
                 </div>
               )}
-              {method === "teach" && (
+              {method === 'teach' && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Feynman Technique!
                 </div>
               )}
-              {method === "flashcard" && (
+              {['flashcard', 'recall', '3'].includes(method) && (
                 <div className='space-y-3'>
                   <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                     You selected Active Recall!
                   </div>
-                  <QuizGenerator />
+                  <QuizAny notes={lessonData?.source ?? ''} lessonId={slug} />
                 </div>
               )}
 
-              {method === "rehearse" && (
+              {method === 'rehearse' && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Maintenance Rehearsal!
                   <p className='mt-2 text-sm font-normal'>
@@ -286,7 +350,7 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
   )
 }
 
-function BouncingDots () {
+function BouncingDots() {
   return (
     <>
       <style jsx>{`

@@ -7,12 +7,16 @@ import { Button } from '@/components/ui/button'
 import FloatingIcons from '@/components/ui/floatingIcons'
 import { createLesson } from '@/lib/actions';
 import { LessonMode } from '@/lib/types';
+import CreatingOverlay from '@/components/ui/CreatingOverlay';
+
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragActive, setIsDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isCreating, setIsCreating] = useState(false);
 
+  
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
@@ -49,17 +53,39 @@ export default function Home () {
   const router = useRouter();
 
   const handleMethodClick = useCallback(async (method: LessonMode) => {
-    setFadeOut(true);
-    const formData = new FormData();
-    if (selectedFile) {
-      formData.append('file', selectedFile);
-    }
+  // show overlay immediately
+  setIsCreating(true);
+  // optional: you can drop the fade if you don’t want the quick white flash
+  // setFadeOut(true);
+
+  // no file? -> go to oops and hide overlay
+  if (!selectedFile) {
+    setIsCreating(false);
+    router.push('/oops?reason=no-file');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  try {
     const chatId = await createLesson(formData, method);
-    console.log("chatId", chatId)
-    setTimeout(() => {
-      router.push(`/chat/${chatId}`);
-    }, 400);
-  }, [router, selectedFile]);
+
+    if (typeof chatId !== 'string' || !chatId.length) {
+      setIsCreating(false);
+      router.push('/oops?reason=server');
+      return;
+    }
+
+    // keep overlay showing while we navigate; Next unmounts it on route change
+    router.push(`/chat/${chatId}`);
+  } catch {
+    setIsCreating(false);
+    router.push('/oops?reason=server');
+  }
+}, [router, selectedFile]);
+
+
 
   return (
     <div>
@@ -145,6 +171,7 @@ export default function Home () {
               </div>
             </div>
           </div>
+          
 
           <div className='mt-14 border-t border-gray-200' />
 
@@ -229,6 +256,7 @@ export default function Home () {
               > Let's Go!</div>
             </div>
           </div>
+          <CreatingOverlay show={isCreating} />
         </main>
       </div>
     </div>
