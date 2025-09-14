@@ -126,19 +126,19 @@ export default function Home () {
                 }`}
               >
                 <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'>
+                  
+                </div>
+                <p className='text-xs text-gray-700'>
                   {selectedFile ? (
                     <span className='text-xs text-gray-500'>
                       {selectedFile.name}
                     </span>
-                  ) : null}
-                </div>
-                <p className='text-xs text-gray-700'>
-                  Accepted file types: pdf, png, jpeg
+                  ) : "Accepted file types: pdf, png, jpeg"}
                 </p>
               </div>
               <div className='mt-4 text-sm text-gray-800'>
                 {selectedFile
-                  ? 'File ready to upload!'
+                  ? 'Click on a method to begin!'
                   : 'Drop your notes here'}
               </div>
             </div>
