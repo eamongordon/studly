@@ -11,6 +11,7 @@ import { CircleAlert, CircleStop, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import QuizGenerator from '@/components/quiz/quizGenerator'
+import { Lesson } from '@/lib/db/schema'
 
 function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output
@@ -56,7 +57,7 @@ function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) 
   )
 }
 
-export default function Chat ({ slug }: { slug: string }) {
+export default function Chat ({ slug, lessonData }: { slug: string, lessonData: Lesson }) {
   const searchParams = useSearchParams()
   const method = searchParams.get('method')
   const { messages, sendMessage, stop, status } = useChat({

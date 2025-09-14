@@ -1,5 +1,6 @@
 "use server";
 
+import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { lesson } from '../db/schema';
 import { generateEmbedding } from '../fetchers/embeddings';
@@ -31,9 +32,17 @@ export const createLesson = async (formData: FormData) => {
       })
       .returning({ id: lesson.id });
 
-    return { lessonId: newLesson.id };
+    return newLesson.id;
   } catch (error) {
     console.error(error);
-    return { error: 'Error generating embeddings or saving lesson' };
+    throw new Error('Error generating embeddings or saving lesson');
   }
+};
+
+export const getLessonData = async (lessonId: string) => {
+  const lessonData = await db.query.lesson.findFirst({
+    where: eq(lesson.id, lessonId),
+  });
+
+  return lessonData;
 };
