@@ -49,17 +49,32 @@ export default function Home () {
   const router = useRouter();
 
   const handleMethodClick = useCallback(async (method: LessonMode) => {
-    setFadeOut(true);
-    const formData = new FormData();
-    if (selectedFile) {
-      formData.append('file', selectedFile);
-    }
-    const chatId = await createLesson(formData, method);
-    console.log("chatId", chatId)
-    setTimeout(() => {
-      router.push(`/chat/${chatId}`);
-    }, 400);
-  }, [router, selectedFile]);
+  setFadeOut(true);
+
+  // No file selected → send to Oops and stop
+  if (!selectedFile) {
+    router.push('/oops?reason=no-file');
+    setFadeOut(false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  const chatId = await createLesson(formData, method);
+
+  // If the server didn’t return a valid id → Oops
+  if (typeof chatId !== 'string' || !chatId.length) {
+    router.push('/oops?reason=server');
+    setFadeOut(false);
+    return;
+  }
+
+  setTimeout(() => {
+    router.push(`/chat/${chatId}`);
+  }, 400);
+}, [router, selectedFile]);
+
 
   return (
     <div>
