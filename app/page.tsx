@@ -102,7 +102,7 @@ export default function Home () {
 
   return (
     <div>
-      ;{' '}
+      {' '}
       <style jsx>{`
         @keyframes clicky {
           0%,
