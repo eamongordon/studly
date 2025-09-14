@@ -374,7 +374,8 @@ export default function Chat({
                     <h2 className='text-2xl md:text-3xl font-bold text-rose-900'>Active Recall</h2>
                   <p className='text-rose-800'>Use flash cards for quick memory practice</p>
                   </div>
-                  <QuizAny notes={lessonData?.source ?? ''} lessonId={slug} />
+                  {/* Pass notes to QuizGenerator for flashcard mode */}
+                  <QuizGenerator notes={lessonData?.source ?? ''} />
                 </div>
               )}
 

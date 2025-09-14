@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-export default function QuizGenerator() {
-  const [notes, setNotes] = useState('');
+export default function QuizGenerator({ notes: initialNotes = '' }: { notes?: string }) {
+  const [notes, setNotes] = useState(initialNotes);
   const [numCards, setNumCards] = useState(12);
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [idx, setIdx] = useState(0);
