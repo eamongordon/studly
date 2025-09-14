@@ -32,10 +32,10 @@ export const createLesson = async (formData: FormData) => {
       })
       .returning({ id: lesson.id });
 
-    return { lessonId: newLesson.id };
+    return newLesson.id;
   } catch (error) {
     console.error(error);
-    return { error: 'Error generating embeddings or saving lesson' };
+    throw new Error('Error generating embeddings or saving lesson');
   }
 };
 

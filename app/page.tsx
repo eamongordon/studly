@@ -54,8 +54,9 @@ export default function Home () {
       formData.append('file', selectedFile);
     }
     const chatId = await createLesson(formData);
+    console.log("chatId", chatId)
     setTimeout(() => {
-      router.push(`/chat/${chatId}?method=${method}`);
+      router.push(`/chat/${chatId}`);
     }, 400);
   }, [router, selectedFile]);
 
