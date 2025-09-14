@@ -1,5 +1,4 @@
 import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
 import {
   convertToModelMessages,
   generateObject,
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
 
   const allTools = {
     generateSong: tool({
-      description: 'Generates a song using AI',
+      description: 'Generates a song using AI.',
       inputSchema: z.object({
         prompt: z.string().describe('Describe your song!'),
         tags: z
@@ -100,7 +99,7 @@ export async function POST(req: Request) {
         }
 
         const { text: info } = await generateText({
-          model: anthropic('claude-3-haiku-20240307'),
+          model: openai('gpt-4o-mini'),
           system: `You are an expert educator. Your task is to explain the given objective based *only* on the provided notes. Do not use any external knowledge.`,
           prompt: `Notes:\n"${currentLesson.source}"\n\nExplain the following objective:\n"${objective}"`,
         });
@@ -141,16 +140,20 @@ export async function POST(req: Request) {
   };
 
   const tools: any = { generateSong: allTools.generateSong };
+  let extraPromptInfo = ``;
+
   if (mode === 'teach') {
     tools.giveInfo = allTools.giveInfo;
     tools.generateQuiz = allTools.generateQuiz;
+
+    extraPromptInfo = `1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
+2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
   }
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
     system: `You are Studly, an AI assistant that helps users with their study plans.
-1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
-2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.
+${extraPromptInfo}
 You also have access to a tool that can generate music based on a given prompt.`,
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(maxStepCount),
