@@ -148,14 +148,14 @@ export default function Chat({
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
         
-      <div className='fixed top-3 left-3 md:top-4 md:left-4 z-50'>
+      <div className='fixed top-3 left-[10px] md:top-[2 0px] md:left-[100px] z-50'>
         <Button
           asChild
           size='sm'
           variant='outline'
           className='bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'
         >
-          <Link href='/'>← Back to home</Link>
+          <Link  href='/'>← Return home</Link>
         </Button>
       </div>
       {messages.length > 0 ? (
