@@ -155,6 +155,32 @@ export default function Chat({
     })
   }, [messages])
 
+  const compareRehearsalResponse = (userResponse: string, notes: string) => {
+    const userWords = userResponse.toLowerCase().split(/\s+/);
+    const noteWords = notes.toLowerCase().split(/\s+/);
+
+    const missingWords = noteWords.filter(word => !userWords.includes(word));
+    const extraWords = userWords.filter(word => !noteWords.includes(word));
+
+    return {
+      missingWords,
+      extraWords,
+    };
+  };
+
+  const handleRehearseMode = () => {
+    if (method === 'rehearse') {
+      const notes = lessonData.source || '';
+      const { missingWords, extraWords } = compareRehearsalResponse(input, notes);
+
+      sendMessage({
+        text: `Feedback:\n\nMissing Information: ${missingWords.join(', ') || 'None'}\nExtra Information: ${extraWords.join(', ') || 'None'}`,
+      });
+
+      setInput('');
+    }
+  };
+
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
       <div className='fixed top-[30px] left-[10px] md:top-[30px] md:left-[100px] z-50'>
@@ -318,13 +344,17 @@ export default function Chat({
                     }
                     
                     if (part.type === 'tool-compareRehearsal') {
-                      const result = (part as { output: { feedback?: string; error?: string } }).output;
+                      const result = (part as { output?: { feedback?: string; error?: string } }).output;
                       return (
                         <div key={index} className="prose dark:prose-invert">
                           <h3>Recall Comparison Feedback</h3>
-                          <div className={result.error ? "bg-red-50 p-4 rounded-lg" : "bg-blue-50 p-4 rounded-lg"}>
-                            <p>{result.feedback || result.error || 'No feedback available'}</p>
-                          </div>
+                          {result ? (
+                            <div className={result.error ? "bg-red-50 p-4 rounded-lg" : "bg-blue-50 p-4 rounded-lg"}>
+                              <p>{result.feedback || result.error || 'No feedback available'}</p>
+                            </div>
+                          ) : (
+                            <p>No feedback available</p>
+                          )}
                         </div>
                       );
                     }
