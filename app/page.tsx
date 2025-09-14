@@ -8,6 +8,7 @@ import FloatingIcons from '@/components/ui/floatingIcons'
 import { createLesson } from '@/lib/actions';
 import { LessonMode } from '@/lib/types';
 import CreatingOverlay from '@/components/ui/CreatingOverlay';
+import Image from 'next/image';
 
 
 export default function Home () {
@@ -95,10 +96,14 @@ export default function Home () {
 
         {/* Header */}
         <header className="relative z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-6xl items-center justify-between p-6">
+          <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-semibold text-gray-800">Stud.ly</span>
-              <img src="/lightbulb.svg" alt="Lightbulb" height={20} width={20} />
+              <Image
+                src="/studly_logo.svg"
+                alt="Studly Logo"
+                width={130}
+                height={32}
+              />
             </div>
             <div className="flex items-center gap-3">
               <Button
