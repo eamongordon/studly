@@ -1,4 +1,5 @@
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import {
   convertToModelMessages,
   generateObject,
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
         }
 
         const { text: info } = await generateText({
-          model: openai('gpt-4o-mini'),
+          model: anthropic('claude-3-haiku-20240307'),
           system: `You are an expert educator. Your task is to explain the given objective based *only* on the provided notes. Do not use any external knowledge.`,
           prompt: `Notes:\n"${currentLesson.source}"\n\nExplain the following objective:\n"${objective}"`,
         });
