@@ -252,8 +252,8 @@ export default function Home () {
     }
   `}
             >
-              <div className='font-medium text-gray-900'>Mnemonic Device:</div>
-              <span>Memorize through song</span>
+              <div className='font-semibold text-lg text-gray-900'>Musical Mnemonics</div>
+              <span>Memorize through songs.</span>
 
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
@@ -283,10 +283,10 @@ export default function Home () {
     }
   `}
             >
-              <div className='font-medium text-gray-900'>
-                Feynman Technique:
+              <div className='font-semibold text-lg text-gray-900'>
+               Lesson Plan
               </div>
-              <span>Teach your notes</span>
+              <span>Let Studly teach you!</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
       ${
@@ -315,8 +315,8 @@ export default function Home () {
     }
   `}
             >
-              <div className='font-medium text-gray-900'>Active Recall:</div>
-              <span>Flash cards</span>
+              <div className='font-semibold text-lg text-gray-900'>Active Recall</div>
+              <span>Review with flash cards.</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
       ${
@@ -345,10 +345,10 @@ export default function Home () {
     }
   `}
             >
-              <div className='font-medium text-gray-900'>
-                Maintenance Rehearsal:
+              <div className='font-semibold text-lg text-gray-900'>
+                Rehearsal
               </div>
-              <span>Note iteration</span>
+              <span>Rehearse your notes.</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
       ${
