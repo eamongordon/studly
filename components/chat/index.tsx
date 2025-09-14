@@ -113,6 +113,8 @@ function LoadingComponent({ toolName }: { toolName: string }) {
     message = 'Getting information...';
   } else if (toolName === 'generateQuiz') {
     message = 'Generating a quiz...';
+  } else if (toolName === 'freeResponse') {
+    message = 'Evaluating your response...';
   }
   return (
     <div className='flex items-center gap-2 text-muted-foreground'>
@@ -269,7 +271,7 @@ export default function Chat({
                             key={`${message.id}-${index}`}
                             onComplete={() => {
                               sendMessage({
-                                text: 'Great, what is the next objective?',
+                                text: 'I answered the quiz correctly.',
                               });
                             }}
                             onRetry={() => {
@@ -281,6 +283,26 @@ export default function Chat({
                         );
                       } else {
                         return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='generateQuiz' />;
+                      }
+                    }
+                    if (part.type === 'tool-freeResponse') {
+                      if (part.output && (part as { output: { feedback: string } }).output.feedback) {
+                        return (
+                          <div
+                            key={index}
+                            className={cn(
+                              'prose dark:prose-invert',
+                              message.role === 'user' && 'text-primary-foreground'
+                            )}
+                          >
+                            <MemoizedMarkdown
+                              id={message.id}
+                              content={(part as { output: { feedback: string } }).output.feedback}
+                            />
+                          </div>
+                        )
+                      } else {
+                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='freeResponse' />;
                       }
                     }
                     return null
