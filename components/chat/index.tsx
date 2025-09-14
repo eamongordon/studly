@@ -17,23 +17,25 @@ import Quiz from '../quiz/quiz';
 import { LessonMode } from '@/lib/types'
 
 function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
-  const output = part.output
-  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const output = part.output;
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const songLoaded = useRef(false);
 
   useEffect(() => {
-    if (output?.clips) {
-      setAudioUrl(output.clips[0].audio_url)
+    if (output?.clips && !songLoaded.current) {
+      songLoaded.current = true;
+      setAudioUrl(output.clips[0].audio_url);
       const pollForCompletion = async () => {
         // Poll for "complete" status
         const newClips = await SunoService.pollForStatus(
           output.clips.map(clip => clip.id),
           'complete'
-        )
-        setAudioUrl(newClips[0].audio_url)
+        );
+        setAudioUrl(newClips[0].audio_url);
       }
-      pollForCompletion()
+      pollForCompletion();
     }
-  }, [output])
+  }, [output]);
 
   return (
     <div className='prose dark:prose-invert'>
