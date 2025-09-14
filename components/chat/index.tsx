@@ -107,6 +107,21 @@ function QuizDisplay({
   );
 }
 
+function LoadingComponent({ toolName }: { toolName: string }) {
+  let message = 'Thinking...';
+  if (toolName === 'giveInfo') {
+    message = 'Getting information...';
+  } else if (toolName === 'generateQuiz') {
+    message = 'Generating a quiz...';
+  }
+  return (
+    <div className='flex items-center gap-2 text-muted-foreground'>
+      <BouncingDots />
+      <span>{message}</span>
+    </div>
+  );
+}
+
 export default function Chat({
   slug,
   lessonData
@@ -195,67 +210,73 @@ export default function Chat({
                         />
                       )
                     }
-                    {/*Workaround for non-text streaming*/ }
-                    if (part.type === 'tool-giveInfo' && part.output && (part as { output: { info: string } }).output.info) {
-                      console.log("part", part)
-                      return (
-                        <div
-                          key={index}
-                          className={cn(
-                            'prose dark:prose-invert',
-                            message.role === 'user' && 'text-primary-foreground'
-                          )}
-                        >
-                          <MemoizedMarkdown
-                            id={message.id}
-                            content={(part as { output: { info: string } }).output.info}
-                          />
-                        </div>
-                      )
+                    if (part.type === 'tool-giveInfo') {
+                      if (part.output && (part as { output: { info: string } }).output.info) {
+                        console.log("part", part)
+                        return (
+                          <div
+                            key={index}
+                            className={cn(
+                              'prose dark:prose-invert',
+                              message.role === 'user' && 'text-primary-foreground'
+                            )}
+                          >
+                            <MemoizedMarkdown
+                              id={message.id}
+                              content={(part as { output: { info: string } }).output.info}
+                            />
+                          </div>
+                        )
+                      } else {
+                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='giveInfo' />;
+                      }
                     }
-                    if (
-                      part.type === 'tool-generateQuiz' &&
-                      part.output &&
-                      (
-                        part as {
-                          output: {
-                            question: string;
-                            options: string[];
-                            answer: string;
-                            checkpointId: string;
-                          };
-                        }
-                      ).output.question
-                    ) {
-                      console.log('PART QUIZ', part);
-                      return (
-                        <QuizDisplay
-                          part={{
-                            result: (
-                              part as {
-                                output: {
-                                  question: string;
-                                  options: string[];
-                                  answer: string;
-                                  checkpointId: string;
-                                };
-                              }
-                            ).output,
-                          }}
-                          lessonId={slug}
-                          key={`${message.id}-${index}`}
-                          onComplete={() => {
-                            sendMessage({
-                              text: 'Great, what is the next objective?',
-                            });
-                          }}
-                          onRetry={() => {
-                            sendMessage({
-                              text: 'I would like to try another question for the last objective.',
-                            });
-                          }}
-                        />
-                      );
+                    if (part.type === 'tool-generateQuiz') {
+                      if (
+                        part.output &&
+                        (
+                          part as {
+                            output: {
+                              question: string;
+                              options: string[];
+                              answer: string;
+                              checkpointId: string;
+                            };
+                          }
+                        ).output.question
+                      ) {
+                        console.log('PART QUIZ', part);
+                        return (
+                          <QuizDisplay
+                            part={{
+                              result: (
+                                part as {
+                                  output: {
+                                    question: string;
+                                    options: string[];
+                                    answer: string;
+                                    checkpointId: string;
+                                  };
+                                }
+                              ).output,
+                            }}
+                            lessonId={slug}
+                            key={`${message.id}-${index}`}
+                            onComplete={() => {
+                              sendMessage({
+                                text: 'Great, what is the next objective?',
+                              });
+                            }}
+                            onRetry={() => {
+                              sendMessage({
+                                text: 'I would like to try another question for the last objective.',
+                              });
+                            }}
+                          />
+                        );
+                      } else {
+                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='generateQuiz' />;
+                      }
                     }
                     return null
                   })}
