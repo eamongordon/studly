@@ -8,10 +8,11 @@ import { cn } from '@/lib/utils'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { CircleAlert, CircleStop, Send } from 'lucide-react'
-import { useEffect, useRef, useState , ComponentType} from 'react'
+import { useEffect, useRef, useState, ComponentType } from 'react'
 import { useSearchParams } from 'next/navigation'
 import QuizGenerator from '@/components/quiz/quizGenerator'
 import { Lesson } from '@/lib/db/schema'
+import Link from 'next/link'
 
 function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output
@@ -65,7 +66,7 @@ export default function Chat ({
   lessonData: Lesson
 }) {
   const sp = useSearchParams()
-  const QuizAny = QuizGenerator as unknown as ComponentType<any>;
+  const QuizAny = QuizGenerator as unknown as ComponentType<any>
 
   const method = (
     (lessonData.mode ?? sp.get('method') ?? '') as string
@@ -90,6 +91,17 @@ export default function Chat ({
 
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
+        
+      <div className='fixed top-3 left-3 md:top-4 md:left-4 z-50'>
+        <Button
+          asChild
+          size='sm'
+          variant='outline'
+          className='bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+        >
+          <Link href='/'>← Back to home</Link>
+        </Button>
+      </div>
       {messages.length > 0 ? (
         <div className='flex-1 w-full overflow-y-auto pt-8'>
           {messages.map((message, index) => (
