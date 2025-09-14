@@ -10,6 +10,7 @@ import { createLesson } from '@/lib/actions'
 import { LessonMode } from '@/lib/types'
 import CreatingOverlay from '@/components/ui/CreatingOverlay'
 import Image from 'next/image'
+import { Music, BookOpen, Brain, RefreshCw } from 'lucide-react'
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -256,7 +257,7 @@ export default function Home () {
               <span>Memorize through songs.</span>
 
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
       ${
         currentActive === 1
           ? 'border-rose-300 bg-rose-100 text-black'
@@ -264,6 +265,7 @@ export default function Home () {
       }
     `}
               >
+                <Music size={16} />
                 Let's Jam!
               </div>
             </div>
@@ -288,7 +290,7 @@ export default function Home () {
               </div>
               <span>Let Studly teach you!</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
       ${
         currentActive === 2
           ? 'border-rose-300 bg-rose-100 text-black'
@@ -296,6 +298,7 @@ export default function Home () {
       }
     `}
               >
+                <BookOpen size={16} />
                 Start Learning!
               </div>
             </div>
@@ -318,7 +321,7 @@ export default function Home () {
               <div className='font-semibold text-lg text-gray-900'>Active Recall</div>
               <span>Review with flash cards.</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
       ${
         currentActive === 3
           ? 'border-rose-300 bg-rose-100 text-black'
@@ -326,6 +329,7 @@ export default function Home () {
       }
     `}
               >
+                <Brain size={16} />
                 Quiz Me!
               </div>
             </div>
@@ -350,7 +354,7 @@ export default function Home () {
               </div>
               <span>Rehearse your notes.</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center flex items-center justify-center gap-2
       ${
         currentActive === 4
           ? 'border-rose-300 bg-rose-100 text-black'
@@ -358,6 +362,7 @@ export default function Home () {
       }
     `}
               >
+                <RefreshCw size={16} />
                 Let's Practice!
               </div>
             </div>
