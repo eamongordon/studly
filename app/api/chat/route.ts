@@ -148,7 +148,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai('gpt-4o-mini'),
     system: `You are Studly, an AI assistant that helps users with their study plans.
-1. When the user asks for information, use the 'giveInfo' tool to provide it based on their notes.
+1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
 2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.
 You also have access to a tool that can generate music based on a given prompt.`,
     messages: convertToModelMessages(messages),

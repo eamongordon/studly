@@ -47,13 +47,6 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
             className='w-full h-auto'
           />
           <audio src={audioUrl || undefined} controls />
-          <div className='lyrics'>
-            <h2 className='text-2xl font-semibold my-5'>Lyrics</h2>
-            <MemoizedMarkdown
-              content={output.clips[0].metadata.prompt || ''}
-              id={output.clips[0].id}
-            />
-          </div>
         </>
       ) : (
         <div className='prose dark:prose-invert'>Generating song...</div>

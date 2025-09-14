@@ -150,6 +150,6 @@
   animation: wobble-sync var(--drift-duration) ease-in-out infinite;
 }
 
-.lyrics p {
-  margin-bottom: 2rem;
+.prose p + p {
+  padding-top: 1rem;
 }
