@@ -79,10 +79,12 @@ export async function POST(req: Request) {
           return {
             info: "It looks like you've completed all objectives for this lesson. Great job!",
             objective: null,
+            checkpointId: null,
           };
         }
 
         const objective = currentCheckpoint.objective;
+        const checkpointId = currentCheckpoint.id;
 
         const currentLesson = await db.query.lesson.findFirst({
           where: eq(lesson.id, lessonId),
@@ -92,6 +94,7 @@ export async function POST(req: Request) {
           return {
             info: "I couldn't find any notes for this lesson.",
             objective,
+            checkpointId,
           };
         }
 
@@ -102,7 +105,7 @@ export async function POST(req: Request) {
         });
 
         // Return both the info and the objective for the next tool
-        return { info, objective };
+        return { info, objective, checkpointId: currentCheckpoint.id };
       },
     }),
     generateQuiz: tool({
@@ -117,8 +120,11 @@ export async function POST(req: Request) {
           .describe(
             'The information provided to the user about the objective.'
           ),
+        checkpointId: z
+          .string()
+          .describe('The ID of the checkpoint being quizzed.'),
       }),
-      execute: async ({ objective, context }) => {
+      execute: async ({ objective, context, checkpointId }) => {
         const { object: quiz } = await generateObject({
           model: openai('gpt-4o-mini'),
           schema: z.object({
@@ -128,7 +134,7 @@ export async function POST(req: Request) {
           }),
           prompt: `Based on the following information:\n\n"${context}"\n\nGenerate one multiple-choice question to test understanding of this objective: "${objective}". The correct answer must be one of the options.`,
         });
-        return quiz;
+        return { ...quiz, checkpointId };
       },
     }),
   };
