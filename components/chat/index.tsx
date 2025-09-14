@@ -94,9 +94,9 @@ export default function Chat({
       api: '/api/chat',
       body: {
         lessonId: slug,
-        mode: method
-      }
-    })
+        mode: lessonData.mode,
+      },
+    }),
   })
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [input, setInput] = useState('')
