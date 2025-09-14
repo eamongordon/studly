@@ -12,8 +12,6 @@ export const lesson = pgTable("lessons", {
   mode: text("mode", { enum: ["song", "teach", "flashcard", "rehearse"] }).notNull().default("song"),
 });
 
-export type Lesson = typeof lesson.$inferSelect;
-
 export const checkpoint = pgTable("checkpoints", {
   id: text("id")
     .primaryKey()

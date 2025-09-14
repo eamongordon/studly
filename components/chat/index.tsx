@@ -11,10 +11,9 @@ import { CircleAlert, CircleStop, Send } from 'lucide-react'
 import { useEffect, useRef, useState, ComponentType } from 'react'
 import { useSearchParams } from 'next/navigation'
 import QuizGenerator from '@/components/quiz/quizGenerator'
-import { Lesson } from '@/lib/db/schema'
 import Link from 'next/link'
 import Quiz from '../quiz/quiz';
-import { LessonMode } from '@/lib/types'
+import { LessonMode, Lesson } from '@/lib/types'
 
 function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output;
