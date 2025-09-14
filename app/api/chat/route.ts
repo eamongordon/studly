@@ -4,6 +4,7 @@ import {
   convertToModelMessages,
   generateObject,
   generateText,
+  hasToolCall,
   stepCountIs,
   streamText,
   tool,
@@ -272,7 +273,7 @@ You have access to the user's uploaded notes through the 'getNotes' tool and can
     model: openai('gpt-4o-mini'),
     system: systemPrompt,
     messages: convertToModelMessages(messages),
-    stopWhen: stepCountIs(maxStepCount),
+    stopWhen: [stepCountIs(maxStepCount), hasToolCall('generateSong')],
     tools,
   });
 
