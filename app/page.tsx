@@ -10,7 +10,7 @@ import { createLesson } from '@/lib/actions'
 import { LessonMode } from '@/lib/types'
 import CreatingOverlay from '@/components/ui/CreatingOverlay'
 import Image from 'next/image'
-import { Music, BookOpen, Brain, RefreshCw } from 'lucide-react'
+import { Music, BookOpen, Brain, RefreshCw, Upload } from 'lucide-react'
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -215,21 +215,23 @@ export default function Home () {
                   isDragActive ? 'bg-rose-100/60 border-rose-400 scale-[1.02]' : ''
                 }`}
               >
-                <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'></div>
-                <p className='text-xs text-gray-700'>
+                <div className='w-16 h-16 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200 shadow-md mb-6 flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:scale-105'>
+                  <Upload className="w-10 h-10 text-rose-500" />
+                </div>
+                <p className='text-sm text-gray-600 font-medium'>
                   {selectedFile ? (
-                    <span className='text-xs text-gray-500'>
-                      {selectedFile.name}
+                    <span className='text-sm text-rose-600 font-semibold'>
+                      📄 {selectedFile.name}
                     </span>
                   ) : (
-                    'Accepted file types: pdf, png, jpeg'
+                    'Accepted file types: PDF, PNG, JPEG'
                   )}
                 </p>
               </div>
-              <div className='mt-4 text-sm text-gray-800'>
+              <div className='mt-6 text-base text-gray-700 font-medium'>
                 {selectedFile
-                  ? 'Click on a method to begin!'
-                  : 'Drop your notes here'}
+                  ? '✨ Ready to learn! Choose a method below to begin your study session.'
+                  : '📚 Drop your study materials here or click to browse'}
               </div>
             </div>
           </div>
