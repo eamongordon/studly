@@ -1,22 +1,23 @@
 'use client'
 
-import { useRef, useState, DragEvent } from 'react'
-import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+import { useRef, useState, useEffect, DragEvent } from 'react'
+
+import { useRouter } from 'next/navigation'
+import { useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import FloatingIcons from '@/components/ui/floatingIcons'
 import { createLesson } from '@/lib/actions';
 import { LessonMode } from '@/lib/types';
 import CreatingOverlay from '@/components/ui/CreatingOverlay';
-
+import Image from 'next/image';
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragActive, setIsDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState(false)
+  const showClickHint = !!selectedFile && !isCreating
 
-  
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
@@ -26,6 +27,15 @@ export default function Home () {
       e.dataTransfer.clearData()
     }
   }
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (selectedFile) setActiveIndex(1)
+    else setActiveIndex(null)
+  }, [selectedFile])
+
+  const currentActive = selectedFile ? hoverIndex ?? activeIndex : null
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -39,6 +49,8 @@ export default function Home () {
     setIsDragActive(false)
   }
 
+  const [hintIndex, setHintIndex] = useState<number | null>(null)
+
   const handleClick = () => {
     fileInputRef.current?.click()
   }
@@ -48,48 +60,70 @@ export default function Home () {
       setSelectedFile(e.target.files[0])
     }
   }
-  const [active] = useState<number>();
-  const [fadeOut, setFadeOut] = useState(false);
-  const router = useRouter();
+  const [active] = useState<number>()
+  const [fadeOut, setFadeOut] = useState(false)
+  const router = useRouter()
 
-  const handleMethodClick = useCallback(async (method: LessonMode) => {
-  // show overlay immediately
-  setIsCreating(true);
-  // optional: you can drop the fade if you don’t want the quick white flash
-  // setFadeOut(true);
+  const handleMethodClick = useCallback(
+    async (method: LessonMode) => {
+      // show overlay immediately
+      setIsCreating(true)
+      // optional: you can drop the fade if you don’t want the quick white flash
+      // setFadeOut(true);
 
-  // no file? -> go to oops and hide overlay
-  if (!selectedFile) {
-    setIsCreating(false);
-    router.push('/oops?reason=no-file');
-    return;
-  }
+      // no file? -> go to oops and hide overlay
+      if (!selectedFile) {
+        setIsCreating(false)
+        router.push('/oops?reason=no-file')
+        return
+      }
 
-  const formData = new FormData();
-  formData.append('file', selectedFile);
+      const formData = new FormData()
+      formData.append('file', selectedFile)
 
-  try {
-    const chatId = await createLesson(formData, method);
+      try {
+        const chatId = await createLesson(formData, method)
 
-    if (typeof chatId !== 'string' || !chatId.length) {
-      setIsCreating(false);
-      router.push('/oops?reason=server');
-      return;
+        if (typeof chatId !== 'string' || !chatId.length) {
+          setIsCreating(false)
+          router.push('/oops?reason=server')
+          return
+        }
+
+        // keep overlay showing while we navigate; Next unmounts it on route change
+        router.push(`/chat/${chatId}`)
+      } catch {
+        setIsCreating(false)
+        router.push('/oops?reason=server')
+      }
+    },
+    [router, selectedFile]
+  )
+
+  ;<style jsx>{`
+    @keyframes clicky {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(0.88);
+        opacity: 0.75;
+      }
     }
-
-    // keep overlay showing while we navigate; Next unmounts it on route change
-    router.push(`/chat/${chatId}`);
-  } catch {
-    setIsCreating(false);
-    router.push('/oops?reason=server');
-  }
-}, [router, selectedFile]);
-
-
+    .cursor-anim {
+      animation: clicky 1.1s ease-in-out infinite;
+    }
+  `}</style>
 
   return (
     <div>
-  <div className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'}`}> 
+      <div
+        className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${
+          fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'
+        }`}
+      >
         {/* Background lightbulb icons */}
         <FloatingIcons />
 
@@ -100,20 +134,19 @@ export default function Home () {
               <span className="text-xl font-semibold text-gray-800">Stud.ly</span>
               <img src="/lightbulb.svg" alt="Lightbulb" height={20} width={20} />
             </div>
-            <div className="flex items-center gap-3">
+            <div className='flex items-center gap-3'>
               <Button
-                variant="outline"
-                className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
+                variant='outline'
+                className='text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent'
               >
                 Sign up
               </Button>
-              <Button className="bg-rose-300 hover:bg-rose-400 text-gray-800 border-0">
+              <Button className='bg-rose-300 hover:bg-rose-400 text-gray-800 border-0'>
                 Log in
               </Button>
             </div>
           </div>
         </header>
-
 
         {/* Main content */}
         <main className='relative z-10 max-w-6xl mx-auto px-6 py-12'>
@@ -121,12 +154,18 @@ export default function Home () {
             {/* Left side - Text content */}
             <div className='space-y-6'>
               <div className='space-y-2'>
-                <p className='text-sm text-gray-600 font-medium'>Based off cognitive learning psychology</p>
+                <p className='text-sm text-gray-600 font-medium'>
+                  Based off cognitive learning psychology
+                </p>
                 <h1 className='text-4xl lg:text-5xl font-bold text-gray-900 leading-tight text-balance'>
                   Stop "I don't know how to study"-ing
                 </h1>
-                <h3 className='text-md text-gray-600 font-medium'>Learn how to study with Stud.ly! </h3>
-                <h3 className='text-md text-gray-600 font-medium'>Choose a study method below to begin</h3>
+                <h3 className='text-md text-gray-600 font-medium'>
+                  Learn how to study with Stud.ly!{' '}
+                </h3>
+                <h3 className='text-md text-gray-600 font-medium'>
+                  Choose a study method below to begin
+                </h3>
               </div>
             </div>
 
@@ -153,15 +192,15 @@ export default function Home () {
                   isDragActive ? 'bg-rose-100/60 border-rose-400' : ''
                 }`}
               >
-                <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'>
-                  
-                </div>
+                <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'></div>
                 <p className='text-xs text-gray-700'>
                   {selectedFile ? (
                     <span className='text-xs text-gray-500'>
                       {selectedFile.name}
                     </span>
-                  ) : "Accepted file types: pdf, png, jpeg"}
+                  ) : (
+                    'Accepted file types: pdf, png, jpeg'
+                  )}
                 </p>
               </div>
               <div className='mt-4 text-sm text-gray-800'>
@@ -171,7 +210,6 @@ export default function Home () {
               </div>
             </div>
           </div>
-          
 
           <div className='mt-14 border-t border-gray-200' />
 
@@ -180,82 +218,129 @@ export default function Home () {
             {/* Method 1 */}
             <div
               role='button'
-              tabIndex={1}
-              onClick={() => handleMethodClick("song")}
-              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
-      ${
-        active === 1
-          ? 'bg-rose-200/70 border-rose-300'
-          : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-      }`}
+              tabIndex={0}
+              onClick={() => handleMethodClick('song')}
+              onMouseEnter={() => setHoverIndex(1)}
+              onMouseLeave={() => setHoverIndex(null)}
+              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
+    ${
+      currentActive === 1
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
+  `}
             >
-              <div className='font-medium text-gray-900'>Mnemonic Device: </div>
-              <span> Memorize through song </span>
+              <div className='font-medium text-gray-900'>Mnemonic Device:</div>
+              <span>Memorize through song</span>
+
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
-                
-              > Let's Go!</div>
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+      ${
+        currentActive === 1
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
+    `}
+              >
+                Let's Go!
+              </div>
             </div>
 
             {/* Method 2 */}
             <div
               role='button'
-              tabIndex={2}
-              onClick={() => handleMethodClick("teach")}
-              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
-      ${
-        active === 2
-          ? 'bg-rose-200/70 border-rose-300'
-          : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-      }`}
+              tabIndex={0}
+              onClick={() => handleMethodClick('teach')}
+              onMouseEnter={() => setHoverIndex(2)}
+              onMouseLeave={() => setHoverIndex(null)}
+              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
+    ${
+      currentActive === 2
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
+  `}
             >
-              <div className='font-medium text-gray-900'>Feynman Technique: </div>
-              <span> Teach your notes </span>
+              <div className='font-medium text-gray-900'>
+                Feynman Technique:
+              </div>
+              <span>Teach your notes</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
-              > Let's Go!</div>
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+      ${
+        currentActive === 2
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
+    `}
+              >
+                Let's Go!
+              </div>
             </div>
 
             {/* Method 3 */}
             <div
               role='button'
-              tabIndex={3}
-              onClick={() => handleMethodClick("flashcard")}
-              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
-      ${
-        active === 3
-          ? 'bg-rose-200/70 border-rose-300'
-          : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-      }`}
+              tabIndex={0}
+              onClick={() => handleMethodClick('flashcard')}
+              onMouseEnter={() => setHoverIndex(3)}
+              onMouseLeave={() => setHoverIndex(null)}
+              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
+    ${
+      currentActive === 3
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
+  `}
             >
-              <div className='font-medium text-gray-900'>Active Recall: </div>
-              <span> Flash cards </span>
+              <div className='font-medium text-gray-900'>Active Recall:</div>
+              <span>Flash cards</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
-                
-              > Let's Go!</div>
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+      ${
+        currentActive === 3
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
+    `}
+              >
+                Let's Go!
+              </div>
             </div>
 
             {/* Method 4 */}
             <div
               role='button'
-              tabIndex={4}
-              onClick={() => handleMethodClick("rehearse")}
-              className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
-      ${
-        active === 4
-          ? 'bg-rose-200/70 border-rose-300'
-          : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-      }`}
+              tabIndex={0}
+              onClick={() => handleMethodClick('rehearse')}
+              onMouseEnter={() => setHoverIndex(4)}
+              onMouseLeave={() => setHoverIndex(null)}
+              className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
+    ${
+      currentActive === 4
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
+  `}
             >
-              <div className='font-medium text-gray-900'>Maintenance Rehearsal: </div>
-              <span> Note iteration </span>
+              <div className='font-medium text-gray-900'>
+                Maintenance Rehearsal:
+              </div>
+              <span>Note iteration</span>
               <div
-                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center text-transparent group-hover:text-black`}
-                
-              > Let's Go!</div>
+                className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
+      ${
+        currentActive === 4
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
+    `}
+              >
+                Let's Go!
+              </div>
             </div>
           </div>
+
           <CreatingOverlay show={isCreating} />
         </main>
       </div>

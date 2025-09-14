@@ -24,7 +24,10 @@ export const processFile = async (formData: FormData) => {
       return { error: 'Unsupported file type' };
     }
 
-    return { text };
+    // Sanitize text to remove null characters
+    const sanitizedText = text.replace(/\x00/g, '');
+
+    return { text: sanitizedText };
   } catch (error) {
     console.error(error);
     return { error: 'Error processing file' };
