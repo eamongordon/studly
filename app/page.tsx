@@ -260,11 +260,11 @@ export default function Home () {
       ${
         currentActive === 1
           ? 'border-rose-300 bg-rose-100 text-black'
-          : 'text-transparent group-hover:text-black'
+          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
       }
     `}
               >
-                Let's Go!
+                Let's Jam!
               </div>
             </div>
 
@@ -292,11 +292,11 @@ export default function Home () {
       ${
         currentActive === 2
           ? 'border-rose-300 bg-rose-100 text-black'
-          : 'text-transparent group-hover:text-black'
+          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
       }
     `}
               >
-                Let's Go!
+                Start Learning!
               </div>
             </div>
 
@@ -322,11 +322,11 @@ export default function Home () {
       ${
         currentActive === 3
           ? 'border-rose-300 bg-rose-100 text-black'
-          : 'text-transparent group-hover:text-black'
+          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
       }
     `}
               >
-                Let's Go!
+                Quiz Me!
               </div>
             </div>
 
@@ -354,11 +354,11 @@ export default function Home () {
       ${
         currentActive === 4
           ? 'border-rose-300 bg-rose-100 text-black'
-          : 'text-transparent group-hover:text-black'
+          : 'border-gray-200 bg-gray-50 text-gray-600 group-hover:border-rose-300 group-hover:bg-rose-100 group-hover:text-black'
       }
     `}
               >
-                Let's Go!
+                Let's Practice!
               </div>
             </div>
           </div>
