@@ -1,48 +1,100 @@
 // app/api/quiz/route.ts
-import { NextRequest } from "next/server";
-import { z } from "zod";
-import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai"; // or your provider
+import { NextResponse } from 'next/server';
+import { QuizRequestSchema } from '@/lib/quiz-schema';
 
-const Card = z.object({
-  question: z.string().min(3),
-  answer: z.string().min(1),
-});
+// very lightweight heuristic generators so we don't rely on external APIs
+function parseDashPairs(lines: string[]) {
+  // e.g., "Term - definition" or "Term: definition"
+  const cards: { q: string; a: string }[] = [];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    const byDash = line.split(/\s+-\s+|:\s+/);
+    if (byDash.length >= 2) {
+      const q = byDash[0].trim();
+      const a = byDash.slice(1).join(' - ').trim();
+      if (q && a) cards.push({ q, a });
+    }
+  }
+  return cards;
+}
 
-export async function POST(req: NextRequest) {
+function clozeFromSentences(text: string) {
+  // turns "The mitochondrion is the powerhouse of the cell." into:
+  // Q: "_____ is the powerhouse of the cell."  A: "The mitochondrion"
+  const cards: { q: string; a: string }[] = [];
+  const sentences = text
+    .replace(/\n+/g, ' ')
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  for (const s of sentences) {
+    // look for "X is/are ..." or "X are ..."
+    const m = s.match(/^(.{3,40}?)\s+(is|are|was|were)\s+(.{6,200})$/i);
+    if (m) {
+      const subject = m[1].trim();
+      const rest = s.slice(subject.length);
+      cards.push({
+        q: '_____ ' + rest.trim(),
+        a: subject,
+      });
+      continue;
+    }
+    // or "Term: definition"
+    const byColon = s.split(/:\s+/);
+    if (byColon.length >= 2) {
+      const term = byColon[0].trim();
+      const def = byColon.slice(1).join(': ').trim();
+      cards.push({ q: `What is "${term}"?`, a: def });
+    }
+  }
+  return cards;
+}
+
+export async function POST(req: Request) {
   try {
-    const { notes, numCards } = await req.json();
+    const body = await req.json();
+    const parsed = QuizRequestSchema.parse({
+      notes: body?.notes,
+      numCards: Number(body?.numCards ?? 12),
+    });
 
-    if (!notes || typeof notes !== "string" || !notes.trim()) {
-      return Response.json({ error: "Missing notes" }, { status: 400 });
+    const rawLines = parsed.notes.split('\n');
+
+    // Priority 1: explicit term-definition lines
+    let pairs = parseDashPairs(rawLines);
+
+    // Fallback: cloze cards from sentences
+    if (pairs.length < parsed.numCards) {
+      const cloze = clozeFromSentences(parsed.notes);
+      pairs = [...pairs, ...cloze];
     }
 
-    const N = Math.max(1, Math.min(100, Number(numCards) || 12));
+    // Final fallback: chunk lines into Q/A
+    if (pairs.length === 0) {
+      for (let i = 0; i < rawLines.length - 1; i += 2) {
+        const q = rawLines[i].trim();
+        const a = rawLines[i + 1].trim();
+        if (q && a) pairs.push({ q, a });
+      }
+    }
 
-    // Dynamic schema: exactly N cards
-    const Output = z.object({
-      cards: z.array(Card).length(N),
-    });
+    if (pairs.length === 0) {
+      return NextResponse.json(
+        { error: 'Could not extract Q/A from notes. Add lines like "Term - definition" or "Term: definition".' },
+        { status: 400 }
+      );
+    }
 
-    const { object } = await generateObject({
-      model: openai("gpt-4o-mini"), // pick your model
-      schema: Output,
-      system:
-        "You create concise, factual flashcards. Respect the requested count exactly.",
-      prompt: [
-        `Make exactly ${N} high-quality Q/A flashcards from the user's notes.`,
-        `Keep each question and answer short (<= 1–2 sentences).`,
-        `If the notes are sparse, extrapolate reasonable basics.`,
-        `No preambles or explanations; return JSON only.`,
-        "",
-        "NOTES:",
-        notes,
-      ].join("\n"),
-    });
+    const cards = pairs.slice(0, parsed.numCards).map((p, idx) => ({
+      id: `${Date.now()}-${idx}`,
+      question: p.q,
+      answer: p.a,
+    }));
 
-    return Response.json(object);
-  } catch (e: any) {
-    console.error(e);
-    return Response.json({ error: "Failed to generate cards" }, { status: 500 });
+    return NextResponse.json({ cards });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? 'Invalid request' }, { status: 400 });
   }
 }
