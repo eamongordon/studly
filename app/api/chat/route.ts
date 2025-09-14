@@ -238,21 +238,20 @@ export async function POST(req: Request) {
   }
 
   // Create system prompt based on mode
-    // Create system prompt based on mode (define only once)
-    let systemPrompt = `You are Studly, an AI assistant that helps users with their study plans.`;
-    if (mode === 'teach') {
-      systemPrompt += `
-  1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
-  2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
-    } else if (mode === 'song') {
-      systemPrompt += `
-  You have access to a tool that can generate music based on a given prompt. You also have access to the user's uploaded notes through the 'getNotes' tool. Help users create songs from their study materials.`;
-    } else if (mode === 'flashcard') {
-      systemPrompt += `
-  You have access to the user's uploaded notes through the 'getNotes' tool and can generate flashcards using the 'generateFlashcards' tool. When users want flashcards, use the generateFlashcards tool with their notes.`;
-    } else if (mode === 'rehearse') {
-      systemPrompt += `
-  You have access to the user's uploaded notes through the 'getNotes' tool and can compare what they recall with their original notes using the 'compareRehearsal' tool. When users write what they remember, use compareRehearsal to provide feedback.`;
+  let systemPrompt = `You are Studly, an AI assistant that helps users with their study plans.`;
+  if (mode === 'teach') {
+    systemPrompt += `
+1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
+2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
+  } else if (mode === 'song') {
+    systemPrompt += `
+You have access to a tool that can generate music based on a given prompt. You also have access to the user's uploaded notes through the 'getNotes' tool. Help users create songs from their study materials.`;
+  } else if (mode === 'flashcard') {
+    systemPrompt += `
+You have access to the user's uploaded notes through the 'getNotes' tool and can generate flashcards using the 'generateFlashcards' tool. When users want flashcards, use the generateFlashcards tool with their notes.`;
+  } else if (mode === 'rehearse') {
+    systemPrompt += `
+You have access to the user's uploaded notes through the 'getNotes' tool and can compare what they recall with their original notes using the 'compareRehearsal' tool. When users write what they remember, use compareRehearsal to provide feedback.`;
   }
   
   if (mode === 'flashcard') {
