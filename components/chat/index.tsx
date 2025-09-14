@@ -13,8 +13,9 @@ import { useSearchParams } from 'next/navigation'
 import QuizGenerator from '@/components/quiz/quizGenerator'
 import { Lesson } from '@/lib/db/schema'
 import Link from 'next/link'
+import Quiz from '../quiz/quiz';
 
-function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) {
+function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
@@ -58,18 +59,34 @@ function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) 
   )
 }
 
-export default function Chat ({
+function ToolInfo({ part }: { part: { result: { info: string } } }) {
+  return (
+    <div className='prose dark:prose-invert'>
+      <MemoizedMarkdown
+        id={part.result.info}
+        content={part.result.info}
+      />
+    </div>
+  );
+}
+
+function QuizDisplay({ part }: { part: { result: { question: string; options: string[]; answer: string; } } }) {
+  const { result } = part;
+  return <Quiz {...result} />;
+}
+
+export default function Chat({
   slug,
   lessonData
 }: {
   slug: string
   lessonData: Lesson
 }) {
-  const sp = useSearchParams()
-  const QuizAny = QuizGenerator as unknown as ComponentType<any>
+  const searchParams = useSearchParams()
+  const QuizAny = QuizGenerator as unknown as ComponentType<any>;
 
   const method = (
-    (lessonData.mode ?? sp.get('method') ?? '') as string
+    (lessonData.mode ?? searchParams.get('method') ?? '') as string
   ).toLowerCase()
   const { messages, sendMessage, stop, status } = useChat({
     transport: new DefaultChatTransport({
@@ -146,7 +163,7 @@ export default function Chat ({
                         />
                       )
                     }
-                    {/*Workaround for non-text streaming*/}
+                    {/*Workaround for non-text streaming*/ }
                     if (part.type === 'tool-giveInfo' && part.output && (part as { output: { info: string } }).output.info) {
                       console.log("part", part)
                       return (
@@ -163,6 +180,10 @@ export default function Chat ({
                           />
                         </div>
                       )
+                    }
+                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string } }).output.question) {
+                      console.log("PART QUIZ", part)
+                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string } }).output }} key={`${message.id}-${index}`} />;
                     }
                     return null
                   })}
@@ -269,7 +290,7 @@ export default function Chat ({
   )
 }
 
-function BouncingDots () {
+function BouncingDots() {
   return (
     <>
       <style jsx>{`

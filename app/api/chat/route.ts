@@ -1,6 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import {
   convertToModelMessages,
+  generateObject,
   generateText,
   stepCountIs,
   streamText,
@@ -14,14 +15,17 @@ import { lesson, checkpoint } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const maxDuration = 30;
-const maxStepCount = 1;
+const maxStepCount = 2; // Allow for a 2-step tool chain (giveInfo -> generateQuiz)
 
 export async function POST(req: Request) {
   const { messages, lessonId }: { messages: UIMessage[]; lessonId: string } =
     await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    system: 'You are Studly, an AI assistant that helps users with their study plans. Provide clear and friendly answers to their questions. You also have access to a tool that can generate music based on a given prompt, useful for creating songs to help you memorize concepts or ideas for studying.',
+    system: `You are Studly, an AI assistant that helps users with their study plans.
+1. When the user asks for information, use the 'giveInfo' tool to provide it based on their notes.
+2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.
+You also have access to a tool that can generate music based on a given prompt.`,
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(maxStepCount),
     tools: {
@@ -58,7 +62,6 @@ export async function POST(req: Request) {
             return { error: 'Lesson ID is missing.' };
           }
 
-          // 1. Find the current checkpoint for the lesson.
           const currentCheckpoint = await db.query.checkpoint.findFirst({
             where: and(
               eq(checkpoint.lessonId, lessonId),
@@ -70,12 +73,12 @@ export async function POST(req: Request) {
           if (!currentCheckpoint) {
             return {
               info: "It looks like you've completed all objectives for this lesson. Great job!",
+              objective: null,
             };
           }
 
           const objective = currentCheckpoint.objective;
 
-          // 2. Find the lesson by its ID to get the source notes.
           const currentLesson = await db.query.lesson.findFirst({
             where: eq(lesson.id, lessonId),
           });
@@ -83,17 +86,44 @@ export async function POST(req: Request) {
           if (!currentLesson || !currentLesson.source) {
             return {
               info: "I couldn't find any notes for this lesson.",
+              objective,
             };
           }
 
-          // 3. Use the lesson's source to generate a response for the current objective.
           const { text: info } = await generateText({
             model: openai('gpt-4o-mini'),
             system: `You are an expert educator. Your task is to explain the given objective based *only* on the provided notes. Do not use any external knowledge.`,
             prompt: `Notes:\n"${currentLesson.source}"\n\nExplain the following objective:\n"${objective}"`,
           });
-          console.log("TEXT INFO", info)
-          return { info };
+
+          // Return both the info and the objective for the next tool
+          return { info, objective };
+        },
+      }),
+      generateQuiz: tool({
+        description:
+          'Generates a multiple-choice quiz question to check for understanding of a given objective and the information provided.',
+        inputSchema: z.object({
+          objective: z
+            .string()
+            .describe('The learning objective the quiz is about.'),
+          context: z
+            .string()
+            .describe(
+              'The information provided to the user about the objective.',
+            ),
+        }),
+        execute: async ({ objective, context }) => {
+          const { object: quiz } = await generateObject({
+            model: openai('gpt-4o-mini'),
+            schema: z.object({
+              question: z.string(),
+              options: z.array(z.string()).length(4),
+              answer: z.string(),
+            }),
+            prompt: `Based on the following information:\n\n"${context}"\n\nGenerate one multiple-choice question to test understanding of this objective: "${objective}". The correct answer must be one of the options.`,
+          });
+          return quiz;
         },
       }),
     },
