@@ -140,18 +140,124 @@ export async function POST(req: Request) {
     }),
   };
 
-  const tools: any = { generateSong: allTools.generateSong };
+  const tools: any = { 
+    generateSong: allTools.generateSong,
+  };
+  
+  // Add giveInfo only for teach mode (it needs checkpoints)
   if (mode === 'teach') {
     tools.giveInfo = allTools.giveInfo;
+  } else {
+    tools.getNotes = tool({
+      description: "Gets the user's uploaded notes",
+      inputSchema: z.object({}),
+      execute: async () => {
+        console.log('📝 GET NOTES TOOL: Getting lesson data for lessonId:', lessonId);
+        
+        const currentLesson = await db.query.lesson.findFirst({
+          where: eq(lesson.id, lessonId),
+        });
+
+        if (!currentLesson || !currentLesson.source) {
+          return { error: 'No notes found for this lesson.' };
+        }
+        
+        return { notes: currentLesson.source };
+      },
+    });
+  }
+  
+  if (mode === 'teach') {
     tools.generateQuiz = allTools.generateQuiz;
+  }
+  
+  if (mode === 'flashcard') {
+    tools.generateFlashcards = tool({
+      description: 'Generates flashcards from the user\'s notes',
+      inputSchema: z.object({
+        numCards: z.number().optional().describe('Number of flashcards to generate'),
+      }),
+      execute: async ({ numCards = 12 }) => {
+        console.log('🃏 FLASHCARD TOOL: Getting lesson data for lessonId:', lessonId);
+        
+        // Get the lesson data to access the uploaded file
+        const currentLesson = await db.query.lesson.findFirst({
+          where: eq(lesson.id, lessonId),
+        });
+        
+        console.log('🃏 FLASHCARD TOOL: Lesson found:', !!currentLesson);
+        console.log('🃏 FLASHCARD TOOL: Has source text:', !!currentLesson?.source);
+        console.log('🃏 FLASHCARD TOOL: Source length:', currentLesson?.source?.length || 0);
+        
+        if (!currentLesson || !currentLesson.source) {
+          return { error: 'No notes found for this lesson.' };
+        }
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/quiz`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: currentLesson.source, numCards }),
+        });
+        const result = await response.json();
+        return result;
+      },
+    });
+  }
+  
+  if (mode === 'rehearse') {
+    tools.compareRehearsal = tool({
+      description: 'Compares user\'s recall with the original notes',
+      inputSchema: z.object({
+        userInput: z.string().describe('What the user wrote from memory'),
+      }),
+      execute: async ({ userInput }) => {
+        console.log('🧠 REHEARSE TOOL: Getting lesson data for lessonId:', lessonId);
+        
+        // Get the lesson data to access the uploaded file
+        const currentLesson = await db.query.lesson.findFirst({
+          where: eq(lesson.id, lessonId),
+        });
+        
+        console.log('🧠 REHEARSE TOOL: Lesson found:', !!currentLesson);
+        console.log('🧠 REHEARSE TOOL: Has source text:', !!currentLesson?.source);
+        console.log('🧠 REHEARSE TOOL: Source length:', currentLesson?.source?.length || 0);
+        
+        if (!currentLesson || !currentLesson.source) {
+          return { error: 'No notes found for this lesson.' };
+        }
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/rehearse`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput, source: currentLesson.source }),
+        });
+        const result = await response.json();
+        return result;
+      },
+    });
+  }
+
+  // Create system prompt based on mode
+  let systemPrompt = `You are Studly, an AI assistant that helps users with their study plans.`;
+  
+  if (mode === 'teach') {
+    systemPrompt += `
+1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
+2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
+  } else if (mode === 'song') {
+    systemPrompt += `
+You have access to a tool that can generate music based on a given prompt. You also have access to the user's uploaded notes through the 'getNotes' tool. Help users create songs from their study materials.`;
+  } else if (mode === 'flashcard') {
+    systemPrompt += `
+You have access to the user's uploaded notes through the 'getNotes' tool and can generate flashcards using the 'generateFlashcards' tool. When users want flashcards, use the generateFlashcards tool with their notes.`;
+  } else if (mode === 'rehearse') {
+    systemPrompt += `
+You have access to the user's uploaded notes through the 'getNotes' tool and can compare what they recall with their original notes using the 'compareRehearsal' tool. When users write what they remember, use compareRehearsal to provide feedback.`;
   }
 
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    system: `You are Studly, an AI assistant that helps users with their study plans.
-1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
-2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.
-You also have access to a tool that can generate music based on a given prompt.`,
+    system: systemPrompt,
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(maxStepCount),
     tools,

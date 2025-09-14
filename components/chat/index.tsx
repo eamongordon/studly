@@ -213,6 +213,24 @@ export default function Chat({
                         </div>
                       )
                     }
+                    
+                    if (part.type === 'tool-getNotes' && part.output && (part as { output: { notes: string } }).output.notes) {
+                      return (
+                        <div
+                          key={index}
+                          className={cn(
+                            'prose dark:prose-invert',
+                            message.role === 'user' && 'text-primary-foreground'
+                          )}
+                        >
+                          <h3>Your Notes:</h3>
+                          <MemoizedMarkdown
+                            id={message.id}
+                            content={(part as { output: { notes: string } }).output.notes}
+                          />
+                        </div>
+                      )
+                    }
                     if (
                       part.type === 'tool-generateQuiz' &&
                       part.output &&
@@ -257,6 +275,41 @@ export default function Chat({
                         />
                       );
                     }
+                    if (part.type === 'tool-generateFlashcards') {
+                      const result = (part as { output: { cards?: any[]; error?: string } }).output;
+                      return (
+                        <div key={index} className="prose dark:prose-invert">
+                          <h3>Generated Flashcards</h3>
+                          {result.error ? (
+                            <div className="bg-red-50 p-4 rounded-lg">
+                              <p className="text-red-800">{result.error}</p>
+                            </div>
+                          ) : (
+                            <div>
+                              {result.cards?.map((card, idx) => (
+                                <div key={idx} className="border rounded p-3 mb-2">
+                                  <p><strong>Q:</strong> {card.question}</p>
+                                  <p><strong>A:</strong> {card.answer}</p>
+                                </div>
+                              )) || <p>No flashcards generated.</p>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    
+                    if (part.type === 'tool-compareRehearsal') {
+                      const result = (part as { output: { feedback?: string; error?: string } }).output;
+                      return (
+                        <div key={index} className="prose dark:prose-invert">
+                          <h3>Recall Comparison Feedback</h3>
+                          <div className={result.error ? "bg-red-50 p-4 rounded-lg" : "bg-blue-50 p-4 rounded-lg"}>
+                            <p>{result.feedback || result.error || 'No feedback available'}</p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
                     return null
                   })}
                 </div>
