@@ -1,4 +1,5 @@
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import {
   convertToModelMessages,
   generateObject,
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
   const allTools = {
     generateSong: tool({
-      description: 'Generates a song using AI.',
+      description: 'Generates a song using AI',
       inputSchema: z.object({
         prompt: z.string().describe('Describe your song!'),
         tags: z
@@ -99,13 +100,31 @@ export async function POST(req: Request) {
         }
 
         const { text: info } = await generateText({
-          model: openai('gpt-4o-mini'),
+          model: anthropic('claude-3-haiku-20240307'),
           system: `You are an expert educator. Your task is to explain the given objective based *only* on the provided notes. Do not use any external knowledge.`,
           prompt: `Notes:\n"${currentLesson.source}"\n\nExplain the following objective:\n"${objective}"`,
         });
 
         // Return both the info and the objective for the next tool
         return { info, objective, checkpointId: currentCheckpoint.id };
+      },
+    }),
+    freeResponse: tool({
+      description:
+        "Evaluates a user's free response explanation of a concept against the original source material.",
+      inputSchema: z.object({
+        userExplanation: z.string().describe("The user's explanation."),
+        objective: z.string().describe('The learning objective.'),
+        context: z.string().describe('The original source material.'),
+      }),
+      execute: async ({ userExplanation, objective, context }) => {
+        const { text: feedback } = await generateText({
+          model: anthropic('claude-3-haiku-20240307'),
+          system: `You are an expert educator. Your task is to evaluate the user's explanation of an objective based on the provided source material. 
+Provide constructive feedback. Identify any inaccuracies or areas for improvement. Keep your feedback concise and encouraging.`,
+          prompt: `Objective: "${objective}"\n\nSource Material:\n"${context}"\n\nUser's Explanation:\n"${userExplanation}"`,
+        });
+        return { feedback };
       },
     }),
     generateQuiz: tool({
@@ -140,20 +159,19 @@ export async function POST(req: Request) {
   };
 
   const tools: any = { generateSong: allTools.generateSong };
-  let extraPromptInfo = ``;
-
   if (mode === 'teach') {
     tools.giveInfo = allTools.giveInfo;
     tools.generateQuiz = allTools.generateQuiz;
-
-    extraPromptInfo = `1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
-2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
+    tools.freeResponse = allTools.freeResponse;
   }
 
   const result = streamText({
-    model: openai('gpt-4o-mini'),
+    model: anthropic('claude-3-haiku-20240307'),
     system: `You are Studly, an AI assistant that helps users with their study plans.
-${extraPromptInfo}
+1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
+2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.
+3. If the user says they answered the quiz correctly, simply ask them to explain the concept in their own words. Do NOT congratulate them or provide any feedback yet.
+4. Only when the user provides their explanation, use the Free Response tool to evaluate it and then provide feedback based on the tool's results, addressing the 'user' as "you". Regardless if they are correct or not, ask them if they are ready for the next objective.
 You also have access to a tool that can generate music based on a given prompt.`,
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(maxStepCount),
