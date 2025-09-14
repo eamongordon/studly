@@ -7,6 +7,7 @@ export const lesson = pgTable("lessons", {
     .$defaultFn(() => crypto.randomUUID()),
   embedding: vector("embedding", { dimensions: 1536 }),
   source: text("source"),
+  mode: text("mode", { enum: ["song", "teach", "flashcard", "rehearse"] }).notNull().default("song"),
 });
 
 export type Lesson = typeof lesson.$inferSelect;
