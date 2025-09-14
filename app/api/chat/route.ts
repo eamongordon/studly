@@ -13,12 +13,13 @@ import { SunoService } from '@/lib/suno-service';
 import { db } from '@/lib/db';
 import { lesson, checkpoint } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { LessonMode } from '@/lib/types';
 
 export const maxDuration = 30;
 const maxStepCount = 2; // Allow for a 2-step tool chain (giveInfo -> generateQuiz)
 
 export async function POST(req: Request) {
-  const { messages, lessonId }: { messages: UIMessage[]; lessonId: string } =
+  const { messages, lessonId, mode }: { messages: UIMessage[]; lessonId: string; mode: LessonMode } =
     await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),

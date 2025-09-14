@@ -14,6 +14,7 @@ import QuizGenerator from '@/components/quiz/quizGenerator'
 import { Lesson } from '@/lib/db/schema'
 import Link from 'next/link'
 import Quiz from '../quiz/quiz';
+import { LessonMode } from '@/lib/types'
 
 function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
   const output = part.output
@@ -86,13 +87,14 @@ export default function Chat({
   const QuizAny = QuizGenerator as unknown as ComponentType<any>;
 
   const method = (
-    (lessonData.mode ?? searchParams.get('method') ?? '') as string
+    (lessonData.mode ?? searchParams.get('method') ?? '') as LessonMode
   ).toLowerCase()
   const { messages, sendMessage, stop, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
       body: {
-        lessonId: slug
+        lessonId: slug,
+        mode: method
       }
     })
   })
