@@ -54,7 +54,7 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
           </div>
         </>
       ) : (
-        <div className=''>Generating song...</div>
+        <div className='prose dark:prose-invert'>Generating song...</div>
       )}
     </div>
   )
@@ -75,6 +75,7 @@ function QuizDisplay({
   part,
   lessonId,
   onComplete,
+  onRetry,
 }: {
   part: {
     result: {
@@ -86,6 +87,7 @@ function QuizDisplay({
   };
   lessonId: string;
   onComplete: () => void;
+  onRetry: () => void;
 }) {
   const { result } = part;
   const [completed, setCompleted] = useState(false);
@@ -101,6 +103,10 @@ function QuizDisplay({
       onComplete={() => {
         setCompleted(true);
         onComplete();
+      }}
+      onRetry={() => {
+        setCompleted(true);
+        onRetry();
       }}
     />
   );
@@ -247,6 +253,11 @@ export default function Chat({
                           onComplete={() => {
                             sendMessage({
                               text: 'Great, what is the next objective?',
+                            });
+                          }}
+                          onRetry={() => {
+                            sendMessage({
+                              text: 'I would like to try another question for the last objective.',
                             });
                           }}
                         />

@@ -11,6 +11,7 @@ interface QuizProps {
   options: string[];
   answer: string;
   onComplete: () => void;
+  onRetry: () => void;
   checkpointId: string;
   lessonId: string;
 }
@@ -20,6 +21,7 @@ export default function Quiz({
   options,
   answer,
   onComplete,
+  onRetry,
   checkpointId,
   lessonId,
 }: QuizProps) {
@@ -69,9 +71,12 @@ export default function Quiz({
           {selectedOption === answer ? (
             <p className="text-green-600 dark:text-green-400">Correct!</p>
           ) : (
-            <p className="text-red-600 dark:text-red-400">
-              Incorrect. The correct answer is: {answer}
-            </p>
+            <div className="text-red-600 dark:text-red-400">
+              <p>Incorrect. The correct answer is: {answer}</p>
+              <Button onClick={onRetry} variant="link" className="mt-2">
+                Try another question
+              </Button>
+            </div>
           )}
         </div>
       )}
