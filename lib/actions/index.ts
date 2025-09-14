@@ -5,8 +5,9 @@ import { db } from '../db';
 import { lesson } from '../db/schema';
 import { generateEmbedding } from '../fetchers/embeddings';
 import { processFile } from '../fetchers/process-file';
+import { LessonMode } from '../types';
 
-export const createLesson = async (formData: FormData) => {
+export const createLesson = async (formData: FormData, mode: LessonMode) => {
   const processedFileResult = await processFile(formData);
 
   if ('error' in processedFileResult) {
@@ -29,6 +30,7 @@ export const createLesson = async (formData: FormData) => {
       .values({
         source: processedFileResult.text,
         embedding: embeddingResult.embedding,
+        mode: mode,
       })
       .returning({ id: lesson.id });
 

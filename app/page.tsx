@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { Button } from '@/components/ui/button'
 import FloatingIcons from '@/components/ui/floatingIcons'
 import { createLesson } from '@/lib/actions';
+import { LessonMode } from '@/lib/types';
 
 export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -47,13 +48,13 @@ export default function Home () {
   const [fadeOut, setFadeOut] = useState(false);
   const router = useRouter();
 
-  const handleMethodClick = useCallback(async (method: number) => {
+  const handleMethodClick = useCallback(async (method: LessonMode) => {
     setFadeOut(true);
     const formData = new FormData();
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
-    const chatId = await createLesson(formData);
+    const chatId = await createLesson(formData, method);
     console.log("chatId", chatId)
     setTimeout(() => {
       router.push(`/chat/${chatId}`);
@@ -153,7 +154,7 @@ export default function Home () {
             <div
               role='button'
               tabIndex={1}
-              onClick={() => handleMethodClick(1)}
+              onClick={() => handleMethodClick("song")}
               className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
         active === 1
@@ -173,7 +174,7 @@ export default function Home () {
             <div
               role='button'
               tabIndex={2}
-              onClick={() => handleMethodClick(2)}
+              onClick={() => handleMethodClick("teach")}
               className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
         active === 2
@@ -192,7 +193,7 @@ export default function Home () {
             <div
               role='button'
               tabIndex={3}
-              onClick={() => handleMethodClick(3)}
+              onClick={() => handleMethodClick("flashcard")}
               className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
         active === 3
@@ -212,7 +213,7 @@ export default function Home () {
             <div
               role='button'
               tabIndex={4}
-              onClick={() => handleMethodClick(4)}
+              onClick={() => handleMethodClick("rehearse")}
               className={`group rounded-2xl p-6 border shadow-sm transition cursor-pointer
       ${
         active === 4
