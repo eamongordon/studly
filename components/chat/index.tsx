@@ -231,6 +231,11 @@ export default function Chat({
                         return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='giveInfo' />;
                       }
                     }
+                    if (part.type === 'tool-fetchNotes') {
+                      if (!part.output || !(part as { output: { notes: string } }).output.notes) {
+                        return <LoadingComponent key={`${message.id}-${index}-loading`} toolName='fetchNotes' />;
+                      }
+                    }
                     if (part.type === 'tool-generateQuiz') {
                       if (
                         part.output &&

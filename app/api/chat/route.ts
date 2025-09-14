@@ -108,6 +108,20 @@ export async function POST(req: Request) {
         return { info, objective, checkpointId: currentCheckpoint.id };
       },
     }),
+    // For non-teach mode so the LLM can still get the user's notes
+    fetchNotes: tool({
+      description: 'Fetches the notes for the given lesson.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        const lessonData = await db.query.lesson.findFirst({
+          where: eq(lesson.id, lessonId),
+        });
+        if (!lessonData || !lessonData.source) {
+          return { error: 'Lesson not found or no notes available.' };
+        }
+        return { notes: lessonData.source };
+      },
+    }),
     generateQuiz: tool({
       description:
         'Generates a multiple-choice quiz question to check for understanding of a given objective and the information provided.',
@@ -148,6 +162,9 @@ export async function POST(req: Request) {
 
     extraPromptInfo = `1. When the user asks you for "my notes", or asks for information, use the 'giveInfo' tool to provide it based on their notes.
 2. After the 'giveInfo' tool returns the information, you MUST then call the 'generateQuiz' tool to create a comprehension question.`;
+  } else {
+    tools.fetchNotes = allTools.fetchNotes;
+    extraPromptInfo = `When the user asks you for "my notes", or asks for information, use the 'fetchNotes' tool to provide it based on their notes. You can combine this with 'generateSong' if the user asks to generate a song from their notes.`;
   }
 
   const result = streamText({
