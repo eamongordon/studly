@@ -54,7 +54,7 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
           </div>
         </>
       ) : (
-        <div className=''>Generating song...</div>
+        <div className='prose dark:prose-invert'>Generating song...</div>
       )}
     </div>
   )
@@ -167,7 +167,6 @@ export default function Chat({
                     }
                     {/*Workaround for non-text streaming*/ }
                     if (part.type === 'tool-giveInfo' && part.output && (part as { output: { info: string } }).output.info) {
-                      console.log("part", part)
                       return (
                         <div
                           key={index}
@@ -184,7 +183,6 @@ export default function Chat({
                       )
                     }
                     if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string } }).output.question) {
-                      console.log("PART QUIZ", part)
                       return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string } }).output }} key={`${message.id}-${index}`} />;
                     }
                     return null
