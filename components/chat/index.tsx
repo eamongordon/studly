@@ -71,9 +71,39 @@ function ToolInfo({ part }: { part: { result: { info: string } } }) {
   );
 }
 
-function QuizDisplay({ part }: { part: { result: { question: string; options: string[]; answer: string; } } }) {
+function QuizDisplay({
+  part,
+  lessonId,
+  onComplete,
+}: {
+  part: {
+    result: {
+      question: string;
+      options: string[];
+      answer: string;
+      checkpointId: string;
+    };
+  };
+  lessonId: string;
+  onComplete: () => void;
+}) {
   const { result } = part;
-  return <Quiz {...result} />;
+  const [completed, setCompleted] = useState(false);
+
+  if (completed) {
+    return null;
+  }
+
+  return (
+    <Quiz
+      {...result}
+      lessonId={lessonId}
+      onComplete={() => {
+        setCompleted(true);
+        onComplete();
+      }}
+    />
+  );
 }
 
 export default function Chat({
@@ -111,14 +141,14 @@ export default function Chat({
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
         
-      <div className='fixed top-3 left-3 md:top-4 md:left-4 z-50'>
+      <div className='fixed top-3 left-[10px] md:top-[2 0px] md:left-[100px] z-50'>
         <Button
           asChild
           size='sm'
           variant='outline'
           className='bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'
         >
-          <Link href='/'>← Back to home</Link>
+          <Link  href='/'>← Return home</Link>
         </Button>
       </div>
       {messages.length > 0 ? (
@@ -182,8 +212,44 @@ export default function Chat({
                         </div>
                       )
                     }
-                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string } }).output.question) {
-                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string } }).output }} key={`${message.id}-${index}`} />;
+                    if (
+                      part.type === 'tool-generateQuiz' &&
+                      part.output &&
+                      (
+                        part as {
+                          output: {
+                            question: string;
+                            options: string[];
+                            answer: string;
+                            checkpointId: string;
+                          };
+                        }
+                      ).output.question
+                    ) {
+                      console.log('PART QUIZ', part);
+                      return (
+                        <QuizDisplay
+                          part={{
+                            result: (
+                              part as {
+                                output: {
+                                  question: string;
+                                  options: string[];
+                                  answer: string;
+                                  checkpointId: string;
+                                };
+                              }
+                            ).output,
+                          }}
+                          lessonId={slug}
+                          key={`${message.id}-${index}`}
+                          onComplete={() => {
+                            sendMessage({
+                              text: 'Great, what is the next objective?',
+                            });
+                          }}
+                        />
+                      );
                     }
                     return null
                   })}

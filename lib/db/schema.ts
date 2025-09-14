@@ -1,6 +1,8 @@
 import { pgTable, text, vector, boolean, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export type LessonMode = "song" | "teach" | "flashcard" | "rehearse";
+
 export const lesson = pgTable("lessons", {
   id: text("id")
     .primaryKey()
