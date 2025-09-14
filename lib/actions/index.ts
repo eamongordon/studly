@@ -2,9 +2,10 @@
 
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { lesson } from '../db/schema';
+import { lesson, checkpoint } from '../db/schema';
 import { generateEmbedding } from '../fetchers/embeddings';
 import { processFile } from '../fetchers/process-file';
+import { createLessonPlan } from '../fetchers/teach';
 import { LessonMode } from '../types';
 
 export const createLesson = async (formData: FormData, mode: LessonMode) => {
@@ -33,6 +34,19 @@ export const createLesson = async (formData: FormData, mode: LessonMode) => {
         mode: mode,
       })
       .returning({ id: lesson.id });
+
+    if (mode === 'teach') {
+      const lessonPlan = await createLessonPlan(processedFileResult.text);
+      if (lessonPlan.objectives && lessonPlan.objectives.length > 0) {
+        await db.insert(checkpoint).values(
+          lessonPlan.objectives.map((objective, index) => ({
+            lessonId: newLesson.id,
+            objective,
+            order: index + 1,
+          })),
+        );
+      }
+    }
 
     return newLesson.id;
   } catch (error) {
