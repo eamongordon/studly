@@ -4,20 +4,36 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+import { completeCheckpoint } from '@/lib/actions/checkpoints';
+
 interface QuizProps {
   question: string;
   options: string[];
   answer: string;
+  onComplete: () => void;
+  checkpointId: string;
+  lessonId: string;
 }
 
-export default function Quiz({ question, options, answer }: QuizProps) {
+export default function Quiz({
+  question,
+  options,
+  answer,
+  onComplete,
+  checkpointId,
+  lessonId,
+}: QuizProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  const handleOptionClick = (option: string) => {
+  const handleOptionClick = async (option: string) => {
     if (isAnswered) return;
     setSelectedOption(option);
     setIsAnswered(true);
+    if (option === answer) {
+      await completeCheckpoint(checkpointId, lessonId);
+      onComplete();
+    }
   };
 
   const getButtonClass = (option: string) => {

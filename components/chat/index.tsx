@@ -71,9 +71,15 @@ function ToolInfo({ part }: { part: { result: { info: string } } }) {
   );
 }
 
-function QuizDisplay({ part }: { part: { result: { question: string; options: string[]; answer: string; } } }) {
+function QuizDisplay({ part, lessonId }: { part: { result: { question: string; options: string[]; answer: string; checkpointId: string; } }, lessonId: string }) {
   const { result } = part;
-  return <Quiz {...result} />;
+  const [completed, setCompleted] = useState(false);
+
+  if (completed) {
+    return null;
+  }
+
+  return <Quiz {...result} lessonId={lessonId} onComplete={() => setCompleted(true)} />;
 }
 
 export default function Chat({
@@ -100,10 +106,6 @@ export default function Chat({
   })
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [input, setInput] = useState('')
-  const [isRehearsalMode, setIsRehearsalMode] = useState( method === 'rehearse')
-  const [rehearsalFeedback, setRehearsalFeedback] = useState('')
-  const [isComparing, setIsComparing] = useState(false)
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -111,39 +113,6 @@ export default function Chat({
       block: 'nearest'
     })
   }, [messages])
-
-  const handleRehearsalSubmit = async (userInput: string) => {
-    if (!lessonData.source) {
-      console.log('No source material available')
-      return
-    }
-    
-    setIsComparing(true)
-    try {
-      const response = await fetch('/api/rehearse', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          source: lessonData.source,
-          userInput: userInput
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to get comparison')
-      }
-      
-      const data = await response.json()
-      setRehearsalFeedback(data.feedback)
-      setIsRehearsalMode(false) // Exit rehearsal mode
-    } catch (error) {
-      console.error('Error comparing input:', error)
-      setRehearsalFeedback('Sorry, there was an error comparing your input. Please try again.')
-    }
-    setIsComparing(false)
-  }
 
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
@@ -220,9 +189,9 @@ export default function Chat({
                         </div>
                       )
                     }
-                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string } }).output.question) {
+                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string, checkpointId: string } }).output.question) {
                       console.log("PART QUIZ", part)
-                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string } }).output }} key={`${message.id}-${index}`} />;
+                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string, checkpointId: string } }).output }} lessonId={slug} key={`${message.id}-${index}`} />;
                     }
                     return null
                   })}
@@ -241,14 +210,6 @@ export default function Chat({
                   <CircleAlert />
                   Something went wrong. Please try again.
                 </div>
-              </div>
-            </div>
-          )}
-          {rehearsalFeedback && (
-            <div className='flex max-w-screen-md mx-auto justify-start'>
-              <div className='bg-rose-100 border border-rose-300 rounded-2xl p-5 my-8'>
-                <h3 className='font-semibold mb-2 text-rose-900'>What You Missed:</h3>
-                <div className='prose dark:prose-invert text-rose-800'>{rehearsalFeedback}</div>
               </div>
             </div>
           )}
@@ -288,9 +249,6 @@ export default function Chat({
               {method === 'rehearse' && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Maintenance Rehearsal!
-                  <p className='mt-2 text-sm font-normal'>
-                    Write everything you remember about the topic in the chat below, and I'll compare it with the source material to identify what you might have missed.
-                  </p>
                 </div>
               )}
             </>
@@ -311,35 +269,25 @@ export default function Chat({
           }}
           onKeyDown={async event => {
             if (event.key === 'Enter') {
-              if (isRehearsalMode) {
-                await handleRehearsalSubmit(input)
-                setInput('')
-              } else {
-                sendMessage({ text: input })
-                setInput('')
-              }
+              sendMessage({ text: input })
+              setInput('')
             }
           }}
-          placeholder={isRehearsalMode ? 'Write everything you remember about the topic...' : 'Type your message...'}
+          placeholder='Type your message...'
           className='w-full h-12'
         />
         <Button
           onClick={async () => {
             if (status === 'submitted' || status === 'streaming') stop()
             else {
-              if (isRehearsalMode) {
-                await handleRehearsalSubmit(input)
-                setInput('')
-              } else {
-                sendMessage({ text: input })
-                setInput('')
-              }
+              sendMessage({ text: input })
+              setInput('')
             }
           }}
           className='h-12 [&_svg]:h-5 [&_svg]:w-5'
           disabled={input.length === 0}
         >
-          {status === 'submitted' || status === 'streaming' || isComparing ? (
+          {status === 'submitted' || status === 'streaming' ? (
             <CircleStop />
           ) : (
             <Send />
