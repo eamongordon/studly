@@ -58,8 +58,7 @@ function SongGeneration ({ part }: { part: { output: { clips: SunoClip[] } } }) 
 }
 
 export default function Chat ({ slug, lessonData }: { slug: string, lessonData: Lesson }) {
-  const searchParams = useSearchParams()
-  const method = searchParams.get('method')
+  const method = lessonData.mode?.toString();
   const { messages, sendMessage, stop, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -158,17 +157,17 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
           </p>
           <div className='mt-4 w-full'>
             <>
-              {method === '1' && (
+              {method === "song" && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Mnemonic Device!
                 </div>
               )}
-              {method === '2' && (
+              {method === "teach" && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Feynman Technique!
                 </div>
               )}
-              {method === '3' && (
+              {method === "flashcard" && (
                 <div className='space-y-3'>
                   <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                     You selected Active Recall!
@@ -177,7 +176,7 @@ export default function Chat ({ slug, lessonData }: { slug: string, lessonData: 
                 </div>
               )}
 
-              {method === '4' && (
+              {method === "rehearse" && (
                 <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
                   You selected the Maintenance Rehearsal!
                 </div>
