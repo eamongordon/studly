@@ -71,7 +71,22 @@ function ToolInfo({ part }: { part: { result: { info: string } } }) {
   );
 }
 
-function QuizDisplay({ part, lessonId }: { part: { result: { question: string; options: string[]; answer: string; checkpointId: string; } }, lessonId: string }) {
+function QuizDisplay({
+  part,
+  lessonId,
+  onComplete,
+}: {
+  part: {
+    result: {
+      question: string;
+      options: string[];
+      answer: string;
+      checkpointId: string;
+    };
+  };
+  lessonId: string;
+  onComplete: () => void;
+}) {
   const { result } = part;
   const [completed, setCompleted] = useState(false);
 
@@ -79,7 +94,16 @@ function QuizDisplay({ part, lessonId }: { part: { result: { question: string; o
     return null;
   }
 
-  return <Quiz {...result} lessonId={lessonId} onComplete={() => setCompleted(true)} />;
+  return (
+    <Quiz
+      {...result}
+      lessonId={lessonId}
+      onComplete={() => {
+        setCompleted(true);
+        onComplete();
+      }}
+    />
+  );
 }
 
 export default function Chat({
@@ -189,9 +213,44 @@ export default function Chat({
                         </div>
                       )
                     }
-                    if (part.type === 'tool-generateQuiz' && part.output && (part as { output: { question: string, options: string[], answer: string, checkpointId: string } }).output.question) {
-                      console.log("PART QUIZ", part)
-                      return <QuizDisplay part={{ result: (part as { output: { question: string, options: string[], answer: string, checkpointId: string } }).output }} lessonId={slug} key={`${message.id}-${index}`} />;
+                    if (
+                      part.type === 'tool-generateQuiz' &&
+                      part.output &&
+                      (
+                        part as {
+                          output: {
+                            question: string;
+                            options: string[];
+                            answer: string;
+                            checkpointId: string;
+                          };
+                        }
+                      ).output.question
+                    ) {
+                      console.log('PART QUIZ', part);
+                      return (
+                        <QuizDisplay
+                          part={{
+                            result: (
+                              part as {
+                                output: {
+                                  question: string;
+                                  options: string[];
+                                  answer: string;
+                                  checkpointId: string;
+                                };
+                              }
+                            ).output,
+                          }}
+                          lessonId={slug}
+                          key={`${message.id}-${index}`}
+                          onComplete={() => {
+                            sendMessage({
+                              text: 'Great, what is the next objective?',
+                            });
+                          }}
+                        />
+                      );
                     }
                     return null
                   })}
