@@ -276,42 +276,43 @@ export default function Chat({
           <div ref={messagesEndRef} />
         </div>
       ) : (
-        <div className='mx-auto max-w-screen-md flex flex-col items-center justify-center gap-4 text-center mb-6'>
-          <h2 className='text-2xl md:text-3xl font-semibold'>Welcome!</h2>
-          <p className='text-muted-foreground'>
-            I&apos;m Studly, the all-knowing Wizard. Ask me anything about your
-            study plans, and I&apos;ll do my best to respond.
-            <br />
-            <i>Remember, I&apos;m an AI, and still make mistakes!</i>
-          </p>
-          <div className='mt-4 w-full'>
+        <div className='mx-auto max-w-screen-md flex flex-col items-center justify-center gap-4 text-center mb-6'>  
             <>
               {method === 'song' && (
-                <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
-                  You selected the Mnemonic Device!
+                <div >
+                  <h2 className='text-2xl md:text-3xl font-semibold'> Mnemonic Device </h2>
+                  <p> Learn your notes from catchy tunes </p>
                 </div>
               )}
               {method === 'teach' && (
-                <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
-                  You selected the Feynman Technique!
+                <div >
+                  <h2 className='text-2xl md:text-3xl font-semibold'>Feynman Technique </h2>
+                  <p> Teach your notes to check your own comprehension </p>
+                  
                 </div>
               )}
               {['flashcard', 'recall', '3'].includes(method) && (
                 <div className='space-y-3'>
-                  <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
-                    You selected Active Recall!
+                  <div >
+                    <h2 className='text-2xl md:text-3xl font-semibold'> Active Recall </h2>
+                  <p> Use flash cards for quick memory practice </p>
                   </div>
                   <QuizAny notes={lessonData?.source ?? ''} lessonId={slug} />
                 </div>
               )}
 
               {method === 'rehearse' && (
-                <div className='p-4 bg-rose-100 rounded-lg text-rose-900 font-semibold'>
-                  You selected the Maintenance Rehearsal!
+                <div >
+                  <h2 className='text-2xl md:text-3xl font-semibold'> Maintenance Reheasal </h2>
+                  <p> See how much information you can dump out of your brain </p>
                 </div>
               )}
             </>
-          </div>
+          
+          <p className='text-muted-foreground'>
+            <i>Remember, I&apos;m an AI, and still make mistakes!</i>
+          </p>
+          
         </div>
       )}
       {/* Centered input container initially, sticky when content grows */}
