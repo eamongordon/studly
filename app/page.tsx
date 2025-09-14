@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import FloatingIcons from '@/components/ui/floatingIcons'
-import { createLesson } from '@/lib/actions';
-import { LessonMode } from '@/lib/types';
-import CreatingOverlay from '@/components/ui/CreatingOverlay';
-import Image from 'next/image';
+import { createLesson } from '@/lib/actions'
+import { LessonMode } from '@/lib/types'
+import CreatingOverlay from '@/components/ui/CreatingOverlay'
+import Image from 'next/image'
 
-export default function Home() {
+export default function Home () {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragActive, setIsDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -100,39 +100,54 @@ export default function Home() {
     [router, selectedFile]
   )
 
-    ; <style jsx>{`
-    @keyframes clicky {
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(0.88);
-        opacity: 0.75;
-      }
-    }
-    .cursor-anim {
-      animation: clicky 1.1s ease-in-out infinite;
-    }
-  `}</style>
-
   return (
     <div>
+      ;{' '}
+      <style jsx>{`
+        @keyframes clicky {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(0.88);
+            opacity: 0.75;
+          }
+        }
+        .cursor-anim {
+          animation: clicky 1.1s ease-in-out infinite;
+        }
+        @keyframes softGlow {
+          0% {
+            box-shadow: 0 0 6px rgba(244, 114, 182, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 14px rgba(244, 114, 182, 0.7);
+          }
+          100% {
+            box-shadow: 0 0 6px rgba(244, 114, 182, 0.4);
+          }
+        }
+        .soft-glow {
+          animation: softGlow 2.2s ease-in-out infinite;
+        }
+      `}</style>
       <div
-        className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'
-          }`}
+        className={`min-h-screen bg-gray-50 relative overflow-hidden transition-all duration-400 ${
+          fadeOut ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'
+        }`}
       >
         {/* Background lightbulb icons */}
         <FloatingIcons />
 
         {/* Header */}
-        <header className="relative z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-6xl items-center justify-between p-4">
-            <div className="flex items-center gap-2">
+        <header className='relative z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
+          <div className='mx-auto flex max-w-6xl items-center justify-between p-4'>
+            <div className='flex items-center gap-2'>
               <Image
-                src="/studly_logo.svg"
-                alt="Studly Logo"
+                src='/studly_logo.svg'
+                alt='Studly Logo'
                 width={130}
                 height={32}
               />
@@ -174,8 +189,13 @@ export default function Home() {
 
             {/* Right side - File upload area (Dropzone) */}
             <div
-              className={`rounded-xl bg-rose-200/70 border border-rose-300 p-5 transition-shadow ${isDragActive ? 'ring-2 ring-rose-400 shadow-lg' : ''
-                }`}
+              className={`rounded-xl bg-rose-200/70 border border-rose-300 p-5 transition-shadow ${
+                isDragActive
+                  ? 'ring-2 ring-rose-400 shadow-lg'
+                  : !selectedFile
+                  ? 'soft-glow'
+                  : ''
+              }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -190,8 +210,9 @@ export default function Home() {
                 onChange={handleFileChange}
               />
               <div
-                className={`rounded-2xl border-2 border-dashed border-rose-300 bg-rose-100/30 p-10 flex flex-col items-center justify-center text-center transition-colors ${isDragActive ? 'bg-rose-100/60 border-rose-400' : ''
-                  }`}
+                className={`rounded-2xl border-2 border-dashed border-rose-300 bg-rose-100/30 p-10 flex flex-col items-center justify-center text-center transition-colors ${
+                  isDragActive ? 'bg-rose-100/60 border-rose-400' : ''
+                }`}
               >
                 <div className='w-14 h-16 rounded-md bg-white border border-gray-200 shadow-sm mb-4 flex items-center justify-center'></div>
                 <p className='text-xs text-gray-700'>
@@ -224,10 +245,11 @@ export default function Home() {
               onMouseEnter={() => setHoverIndex(1)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${currentActive === 1
-                  ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-                  : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-                }
+    ${
+      currentActive === 1
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
   `}
             >
               <div className='font-medium text-gray-900'>Mnemonic Device:</div>
@@ -235,10 +257,11 @@ export default function Home() {
 
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
-      ${currentActive === 1
-                    ? 'border-rose-300 bg-rose-100 text-black'
-                    : 'text-transparent group-hover:text-black'
-                  }
+      ${
+        currentActive === 1
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
     `}
               >
                 Let's Go!
@@ -253,10 +276,11 @@ export default function Home() {
               onMouseEnter={() => setHoverIndex(2)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${currentActive === 2
-                  ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-                  : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-                }
+    ${
+      currentActive === 2
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
   `}
             >
               <div className='font-medium text-gray-900'>
@@ -265,10 +289,11 @@ export default function Home() {
               <span>Teach your notes</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
-      ${currentActive === 2
-                    ? 'border-rose-300 bg-rose-100 text-black'
-                    : 'text-transparent group-hover:text-black'
-                  }
+      ${
+        currentActive === 2
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
     `}
               >
                 Let's Go!
@@ -283,20 +308,22 @@ export default function Home() {
               onMouseEnter={() => setHoverIndex(3)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${currentActive === 3
-                  ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-                  : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-                }
+    ${
+      currentActive === 3
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
   `}
             >
               <div className='font-medium text-gray-900'>Active Recall:</div>
               <span>Flash cards</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
-      ${currentActive === 3
-                    ? 'border-rose-300 bg-rose-100 text-black'
-                    : 'text-transparent group-hover:text-black'
-                  }
+      ${
+        currentActive === 3
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
     `}
               >
                 Let's Go!
@@ -311,10 +338,11 @@ export default function Home() {
               onMouseEnter={() => setHoverIndex(4)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`group relative rounded-2xl p-6 border shadow-sm transition cursor-pointer
-    ${currentActive === 4
-                  ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
-                  : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
-                }
+    ${
+      currentActive === 4
+        ? 'bg-rose-200/70 border-rose-300 -translate-y-0.5 shadow-md'
+        : 'bg-white border-gray-200 hover:border-rose-300 hover:bg-rose-50/40 hover:-translate-y-0.5 hover:shadow-md'
+    }
   `}
             >
               <div className='font-medium text-gray-900'>
@@ -323,10 +351,11 @@ export default function Home() {
               <span>Note iteration</span>
               <div
                 className={`mt-5 h-10 w-full rounded-lg border transition p-2 text-center
-      ${currentActive === 4
-                    ? 'border-rose-300 bg-rose-100 text-black'
-                    : 'text-transparent group-hover:text-black'
-                  }
+      ${
+        currentActive === 4
+          ? 'border-rose-300 bg-rose-100 text-black'
+          : 'text-transparent group-hover:text-black'
+      }
     `}
               >
                 Let's Go!
