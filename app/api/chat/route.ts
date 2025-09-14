@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       },
     }),
     // For non-teach mode so the LLM can still get the user's notes
-    fetchNotes: tool({
+    getNotes: tool({
       description: 'Fetches the notes for the given lesson.',
       inputSchema: z.object({}),
       execute: async () => {
@@ -170,42 +170,7 @@ Provide constructive feedback. Identify any inaccuracies or areas for improvemen
         return { ...quiz, checkpointId };
       },
     }),
-  };
-
-  const tools: any = { 
-    generateSong: allTools.generateSong,
-  };
-  
-  // Add giveInfo only for teach mode (it needs checkpoints)
-  if (mode === 'teach') {
-    tools.giveInfo = allTools.giveInfo;
-  } else {
-    tools.getNotes = tool({
-      description: "Gets the user's uploaded notes",
-      inputSchema: z.object({}),
-      execute: async () => {
-        console.log('📝 GET NOTES TOOL: Getting lesson data for lessonId:', lessonId);
-        
-        const currentLesson = await db.query.lesson.findFirst({
-          where: eq(lesson.id, lessonId),
-        });
-
-        if (!currentLesson || !currentLesson.source) {
-          return { error: 'No notes found for this lesson.' };
-        }
-        
-        return { notes: currentLesson.source };
-      },
-    });
-  }
-  
-  if (mode === 'teach') {
-    tools.generateQuiz = allTools.generateQuiz;
-
-  }
-  
-  if (mode === 'flashcard') {
-    tools.generateFlashcards = tool({
+    generateFlashcards: tool({
       description: 'Generates flashcards from the user\'s notes',
       inputSchema: z.object({
         numCards: z.number().optional().describe('Number of flashcards to generate'),
@@ -234,11 +199,8 @@ Provide constructive feedback. Identify any inaccuracies or areas for improvemen
         const result = await response.json();
         return result;
       },
-    });
-  }
-  
-  if (mode === 'rehearse') {
-    tools.compareRehearsal = tool({
+    }),
+    compareRehearsal: tool({
       description: 'Compares user\'s recall with the original notes',
       inputSchema: z.object({
         userInput: z.string().describe('What the user wrote from memory'),
@@ -267,7 +229,26 @@ Provide constructive feedback. Identify any inaccuracies or areas for improvemen
         const result = await response.json();
         return result;
       },
-    });
+    })
+  };
+
+  const tools: any = { 
+    generateSong: allTools.generateSong,
+  };
+  
+  // Add giveInfo only for teach mode (it needs checkpoints)
+  if (mode === 'teach') {
+    tools.giveInfo = allTools.giveInfo;
+    tools.generateQuiz = allTools.generateQuiz;
+  } else if (mode === 'flashcard') {
+      tools.generateFlashcards = allTools.generateFlashcards;
+  } else if (mode === 'rehearse') {
+    tools.compareRehearsal = allTools.compareRehearsal;
+  }
+
+  // Add getNotes for all modes except teach
+  if (mode !== 'teach') {
+    tools.getNotes = allTools.getNotes;
   }
 
   // Create system prompt based on mode
@@ -285,72 +266,6 @@ You have access to the user's uploaded notes through the 'getNotes' tool and can
   } else if (mode === 'rehearse') {
     systemPrompt += `
 You have access to the user's uploaded notes through the 'getNotes' tool and can compare what they recall with their original notes using the 'compareRehearsal' tool. When users write what they remember, use compareRehearsal to provide feedback.`;
-  }
-  
-  if (mode === 'flashcard') {
-    tools.generateFlashcards = tool({
-      description: 'Generates flashcards from the user\'s notes',
-      inputSchema: z.object({
-        numCards: z.number().optional().describe('Number of flashcards to generate'),
-      }),
-      execute: async ({ numCards = 12 }) => {
-        console.log('🃏 FLASHCARD TOOL: Getting lesson data for lessonId:', lessonId);
-        
-        // Get the lesson data to access the uploaded file
-        const currentLesson = await db.query.lesson.findFirst({
-          where: eq(lesson.id, lessonId),
-        });
-        
-        console.log('🃏 FLASHCARD TOOL: Lesson found:', !!currentLesson);
-        console.log('🃏 FLASHCARD TOOL: Has source text:', !!currentLesson?.source);
-        console.log('🃏 FLASHCARD TOOL: Source length:', currentLesson?.source?.length || 0);
-        
-        if (!currentLesson || !currentLesson.source) {
-          return { error: 'No notes found for this lesson.' };
-        }
-        
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/quiz`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes: currentLesson.source, numCards }),
-        });
-        const result = await response.json();
-        return result;
-      },
-    });
-  }
-  
-  if (mode === 'rehearse') {
-    tools.compareRehearsal = tool({
-      description: 'Compares user\'s recall with the original notes',
-      inputSchema: z.object({
-        userInput: z.string().describe('What the user wrote from memory'),
-      }),
-      execute: async ({ userInput }) => {
-        console.log('🧠 REHEARSE TOOL: Getting lesson data for lessonId:', lessonId);
-        
-        // Get the lesson data to access the uploaded file
-        const currentLesson = await db.query.lesson.findFirst({
-          where: eq(lesson.id, lessonId),
-        });
-        
-        console.log('🧠 REHEARSE TOOL: Lesson found:', !!currentLesson);
-        console.log('🧠 REHEARSE TOOL: Has source text:', !!currentLesson?.source);
-        console.log('🧠 REHEARSE TOOL: Source length:', currentLesson?.source?.length || 0);
-        
-        if (!currentLesson || !currentLesson.source) {
-          return { error: 'No notes found for this lesson.' };
-        }
-        
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/rehearse`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userInput, source: currentLesson.source }),
-        });
-        const result = await response.json();
-        return result;
-      },
-    });
   }
 
   const result = streamText({
