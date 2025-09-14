@@ -46,9 +46,14 @@ function SongGeneration({ part }: { part: { output: { clips: SunoClip[] } } }) {
             className='w-full h-auto'
           />
           <audio src={audioUrl || undefined} controls />
+
+          <div className="lyrics">
+              <h2 className="text-2xl font-semibold my-5">Lyrics</h2>
+              <MemoizedMarkdown content={output.clips[0].metadata.prompt || ""} id={output.clips[0].id} />
+          </div>
         </>
       ) : (
-        <div className='prose dark:prose-invert'>Generating song...</div>
+        <LoadingComponent toolName='generateSong' />
       )}
     </div>
   )
@@ -114,6 +119,8 @@ function LoadingComponent({ toolName }: { toolName: string }) {
     message = 'Generating a quiz...';
   } else if (toolName === 'freeResponse') {
     message = 'Evaluating your response...';
+  } else if (toolName === 'generateSong') {
+    message = 'Generating a song...';
   }
   return (
     <div className='flex items-center gap-2 text-muted-foreground'>
