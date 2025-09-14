@@ -121,6 +121,7 @@ export async function POST(req: Request) {
           return { error: 'Lesson not found or no notes available.' };
         }
         return { notes: lessonData.source };
+      },
     }),
     freeResponse: tool({
       description:
