@@ -141,15 +141,14 @@ export default function Chat({
 
   return (
     <main className='h-[calc(100dvh-64px)] px-4 flex flex-col items-center justify-center'>
-        
-      <div className='fixed top-3 left-[10px] md:top-[2 0px] md:left-[100px] z-50'>
+      <div className='fixed top-[30px] left-[10px] md:top-[30px] md:left-[100px] z-50'>
         <Button
           asChild
           size='sm'
           variant='outline'
-          className='bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+          className=' border-rose-300 text-gray-700 hover:bg-rose-400 backdrop-blur bg-rose-300 py-5'
         >
-          <Link  href='/'>← Return home</Link>
+          <Link href='/'>← Return home</Link>
         </Button>
       </div>
       {messages.length > 0 ? (
@@ -167,8 +166,8 @@ export default function Chat({
                   className={cn(
                     'mb-8',
                     message.role === 'user'
-                      ? 'rounded-xl py-3 px-5 bg-primary text-primary-foreground font-semibold'
-                      : 'bg-muted rounded-2xl p-5'
+                      ? 'rounded-xl py-3 px-5 bg-rose-300 text-gray-900 font-semibold shadow'
+                      : 'bg-white border border-rose-200 rounded-2xl p-5 shadow-sm'
                   )}
                 >
                   {message.parts.map((part, index) => {
@@ -282,26 +281,26 @@ export default function Chat({
           <div ref={messagesEndRef} />
         </div>
       ) : (
-        <div className='mx-auto max-w-screen-md flex flex-col items-center justify-center gap-4 text-center mb-6'>  
+  <div className='mx-auto max-w-screen-md flex flex-col items-center justify-center gap-4 text-center mb-6'>  
             <>
               {method === 'song' && (
                 <div >
-                  <h2 className='text-2xl md:text-3xl font-semibold'> Mnemonic Device </h2>
-                  <p> Learn your notes from catchy tunes </p>
+                  <h2 className='text-2xl md:text-3xl font-bold text-rose-900'>Mnemonic Device</h2>
+                  <p className='text-rose-800'>Learn your notes from catchy tunes</p>
                 </div>
               )}
               {method === 'teach' && (
                 <div >
-                  <h2 className='text-2xl md:text-3xl font-semibold'>Feynman Technique </h2>
-                  <p> Teach your notes to check your own comprehension </p>
+                  <h2 className='text-2xl md:text-3xl font-bold text-rose-900'>Feynman Technique</h2>
+                  <p className='text-rose-800'>Teach your notes to check your own comprehension</p>
                   
                 </div>
               )}
               {['flashcard', 'recall', '3'].includes(method) && (
                 <div className='space-y-3'>
                   <div >
-                    <h2 className='text-2xl md:text-3xl font-semibold'> Active Recall </h2>
-                  <p> Use flash cards for quick memory practice </p>
+                    <h2 className='text-2xl md:text-3xl font-bold text-rose-900'>Active Recall</h2>
+                  <p className='text-rose-800'>Use flash cards for quick memory practice</p>
                   </div>
                   <QuizAny notes={lessonData?.source ?? ''} lessonId={slug} />
                 </div>
@@ -309,8 +308,8 @@ export default function Chat({
 
               {method === 'rehearse' && (
                 <div >
-                  <h2 className='text-2xl md:text-3xl font-semibold'> Maintenance Reheasal </h2>
-                  <p> See how much information you can dump out of your brain </p>
+                  <h2 className='text-2xl md:text-3xl font-bold text-rose-900'>Maintenance Rehearsal</h2>
+                  <p className='text-rose-800'>See how much information you can dump out of your brain</p>
                 </div>
               )}
             </>

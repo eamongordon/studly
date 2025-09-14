@@ -64,30 +64,30 @@ export default function QuizGenerator() {
   return (
     <div className="flex flex-col gap-4">
       {/* Builder */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-        <textarea
-          className="min-h-40 w-full rounded-xl border bg-background p-3 text-sm outline-none"
-          placeholder={`Paste notes here.\nExamples:\nPhotosynthesis - process plants use to convert light energy into chemical energy\nMitochondria: the powerhouse of the cell\nOr write pairs on separate lines:`}
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-        />
-        <div className="flex md:flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground"># Cards</span>
-            <Input
-              type="number"
-              className="w-24"
-              min={1}
-              max={100}
-              value={numCards}
-              onChange={e => setNumCards(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
-            />
-          </div>
-          <Button onClick={generate} disabled={loading || !notes.trim()}>
-            {loading ? 'Generating…' : 'Generate Flashcards'}
-          </Button>
-        </div>
-      </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-7xl w-full">
+  <textarea
+    className="min-h-40 w-full rounded-xl border bg-background p-3 text-sm outline-none md:col-span-2"
+    placeholder={`Paste notes here.\nExamples:\nPhotosynthesis - process plants use to convert light energy into chemical energy\nMitochondria: the powerhouse of the cell\nOr write pairs on separate lines:`}
+    value={notes}
+    onChange={e => setNotes(e.target.value)}
+  />
+  <div className="flex md:flex-row gap-6 right-0">
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground"># Cards</span>
+      <Input
+        type="number"
+        className="w-24"
+        min={1}
+        max={100}
+        value={numCards}
+        onChange={e => setNumCards(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+      />
+    </div>
+    <Button  onClick={generate} disabled={loading || !notes.trim()}>
+      {loading ? 'Generating…' : 'Generate Flashcards'}
+    </Button>
+  </div>
+</div>
 
       {/* Review */}
       {cards.length > 0 && (
