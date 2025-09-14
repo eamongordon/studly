@@ -1,4 +1,5 @@
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import {
   convertToModelMessages,
   generateObject,
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
   const allTools = {
     generateSong: tool({
-      description: 'Generates a song using AI.',
+      description: 'Generates a song using AI',
       inputSchema: z.object({
         prompt: z.string().describe('Describe your song!'),
         tags: z
@@ -99,13 +100,44 @@ export async function POST(req: Request) {
         }
 
         const { text: info } = await generateText({
-          model: openai('gpt-4o-mini'),
+          model: anthropic('claude-3-haiku-20240307'),
           system: `You are an expert educator. Your task is to explain the given objective based *only* on the provided notes. Do not use any external knowledge.`,
           prompt: `Notes:\n"${currentLesson.source}"\n\nExplain the following objective:\n"${objective}"`,
         });
 
         // Return both the info and the objective for the next tool
         return { info, objective, checkpointId: currentCheckpoint.id };
+      },
+    }),
+    // For non-teach mode so the LLM can still get the user's notes
+    fetchNotes: tool({
+      description: 'Fetches the notes for the given lesson.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        const lessonData = await db.query.lesson.findFirst({
+          where: eq(lesson.id, lessonId),
+        });
+        if (!lessonData || !lessonData.source) {
+          return { error: 'Lesson not found or no notes available.' };
+        }
+        return { notes: lessonData.source };
+    }),
+    freeResponse: tool({
+      description:
+        "Evaluates a user's free response explanation of a concept against the original source material.",
+      inputSchema: z.object({
+        userExplanation: z.string().describe("The user's explanation."),
+        objective: z.string().describe('The learning objective.'),
+        context: z.string().describe('The original source material.'),
+      }),
+      execute: async ({ userExplanation, objective, context }) => {
+        const { text: feedback } = await generateText({
+          model: anthropic('claude-3-haiku-20240307'),
+          system: `You are an expert educator. Your task is to evaluate the user's explanation of an objective based on the provided source material. 
+Provide constructive feedback. Identify any inaccuracies or areas for improvement. Keep your feedback concise and encouraging.`,
+          prompt: `Objective: "${objective}"\n\nSource Material:\n"${context}"\n\nUser's Explanation:\n"${userExplanation}"`,
+        });
+        return { feedback };
       },
     }),
     generateQuiz: tool({

@@ -113,6 +113,8 @@ function LoadingComponent({ toolName }: { toolName: string }) {
     message = 'Getting information...';
   } else if (toolName === 'generateQuiz') {
     message = 'Generating a quiz...';
+  } else if (toolName === 'freeResponse') {
+    message = 'Evaluating your response...';
   }
   return (
     <div className='flex items-center gap-2 text-muted-foreground'>
